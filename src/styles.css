@@ -82,3 +82,79 @@
   to { transform: translateX(-50%); }
 }
 .animate-marquee { animation: marquee 30s linear infinite; }
+
+/* Liquid glass system */
+:root {
+  --glass-bg: color-mix(in oklab, white 55%, transparent);
+  --glass-bg-strong: color-mix(in oklab, white 70%, transparent);
+  --glass-border: color-mix(in oklab, white 70%, transparent);
+  --glass-stroke: color-mix(in oklab, var(--navy) 8%, transparent);
+  --glass-highlight: linear-gradient(
+    135deg,
+    color-mix(in oklab, white 85%, transparent) 0%,
+    color-mix(in oklab, white 20%, transparent) 35%,
+    color-mix(in oklab, white 5%, transparent) 60%,
+    color-mix(in oklab, white 40%, transparent) 100%
+  );
+  --glass-shadow:
+    0 1px 0 0 color-mix(in oklab, white 80%, transparent) inset,
+    0 -1px 0 0 color-mix(in oklab, var(--navy) 8%, transparent) inset,
+    0 10px 30px -12px color-mix(in oklab, var(--navy) 20%, transparent),
+    0 30px 60px -30px color-mix(in oklab, var(--brand-blue) 25%, transparent);
+}
+
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  isolation: isolate;
+}
+.glass::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: var(--glass-highlight);
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+.glass::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px var(--glass-stroke) inset;
+  pointer-events: none;
+  z-index: 1;
+}
+.glass > * { position: relative; z-index: 2; }
+
+.glass-strong { background: var(--glass-bg-strong); }
+
+.glass-tint-blue {
+  background:
+    linear-gradient(135deg,
+      color-mix(in oklab, var(--brand-blue) 22%, transparent),
+      color-mix(in oklab, var(--navy) 35%, transparent));
+  color: var(--primary-foreground);
+  border: 1px solid color-mix(in oklab, white 30%, transparent);
+}
+.glass-tint-blue::before { opacity: 0.5; }
+
+.glass-hover {
+  transition: transform .35s cubic-bezier(.2,.8,.2,1),
+              box-shadow .35s ease,
+              background .35s ease;
+}
+.glass-hover:hover {
+  transform: translateY(-2px);
+  background: var(--glass-bg-strong);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 90%, transparent) inset,
+    0 -1px 0 0 color-mix(in oklab, var(--navy) 10%, transparent) inset,
+    0 18px 40px -14px color-mix(in oklab, var(--navy) 28%, transparent),
+    0 40px 70px -30px color-mix(in oklab, var(--brand-blue) 35%, transparent);
+}
