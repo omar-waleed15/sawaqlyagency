@@ -79,8 +79,8 @@ function Index() {
 
 function Header() {
   return (
-    <header className="sticky top-4 z-40 px-4">
-      <div className="mx-auto max-w-7xl glass glass-hover rounded-full px-6 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-40 backdrop-blur bg-background/80 border-b border-border">
+      <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-2 font-display font-bold text-lg">
           <span className="inline-block w-7 h-7 rounded-md" style={{ background: "var(--gradient-brand)" }} />
           <span>Sawaqly</span>
@@ -92,7 +92,8 @@ function Header() {
         </nav>
         <a
           href="#contact"
-          className="hidden md:inline-flex glass glass-tint-blue glass-hover items-center rounded-full px-5 py-2 text-sm font-medium"
+          className="hidden md:inline-flex items-center rounded-full px-5 py-2 text-sm font-medium text-primary-foreground"
+          style={{ background: "var(--gradient-brand)" }}
         >
           Start a project
         </a>
@@ -118,13 +119,14 @@ function Hero() {
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href="#contact"
-              className="glass glass-tint-blue glass-hover inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold"
+              className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+              style={{ background: "var(--gradient-brand)" }}
             >
               Book a strategy call
             </a>
             <a
               href="#services"
-              className="glass glass-hover inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold text-navy"
+              className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold border border-border hover:border-brand-blue transition"
             >
               See our services
             </a>
@@ -150,7 +152,7 @@ function Marquee() {
           {row.map((b, i) => (
             <span
               key={i}
-              className="glass glass-hover rounded-full px-7 py-3 font-display text-xl md:text-2xl font-bold tracking-widest text-navy/80"
+              className="font-display text-2xl md:text-3xl font-bold tracking-widest text-navy/70 hover:text-brand-blue transition"
             >
               {b}
             </span>
@@ -208,14 +210,15 @@ function Services() {
           {services.map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
-              className="group glass glass-hover rounded-3xl p-7"
+              className="group bg-card rounded-2xl p-7 border border-border hover:border-brand-blue/40 hover:shadow-[var(--shadow-soft)] transition-all"
             >
               <div
-                className="glass glass-tint-blue w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 text-primary-foreground"
+                style={{ background: "var(--gradient-brand)" }}
               >
                 <Icon size={22} />
               </div>
-              <h3 className="text-xl font-bold text-navy">{title}</h3>
+              <h3 className="text-xl font-bold">{title}</h3>
               <p className="mt-2 text-muted-foreground text-sm leading-relaxed">{desc}</p>
               <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all" />
             </div>
@@ -246,7 +249,7 @@ function Contact() {
         </div>
         <form
           onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-          className="glass rounded-3xl p-8 space-y-4"
+          className="bg-card border border-border rounded-2xl p-8 shadow-[var(--shadow-soft)] space-y-4"
         >
           <div className="grid grid-cols-2 gap-4">
             <Field label="Name" name="name" />
@@ -258,12 +261,13 @@ function Contact() {
             <textarea
               required
               rows={4}
-              className="mt-1 w-full rounded-lg border border-border bg-white/60 backdrop-blur px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
             />
           </div>
           <button
             type="submit"
-            className="glass glass-tint-blue glass-hover inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground"
+            style={{ background: "var(--gradient-brand)" }}
           >
             <Send size={16} /> {sent ? "Thanks — we'll be in touch" : "Send message"}
           </button>
