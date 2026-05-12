@@ -166,12 +166,6 @@
   opacity: 0.55;
   pointer-events: none; z-index: 0;
 }
-.glass::after {
-  content: ""; position: absolute; inset: 0;
-  border-radius: inherit;
-  box-shadow: 0 0 0 1px var(--glass-stroke) inset;
-  pointer-events: none; z-index: 1;
-}
 .glass > * { position: relative; z-index: 2; }
 
 .glass-strong { background: var(--glass-bg-strong); }
@@ -202,17 +196,15 @@
 }
 
 /* Liquid glow pulse for primary CTAs */
-.glass-glow { position: relative; }
-.glass-glow::after {
-  /* extend stroke layer with glow */
+.glass-glow {
   box-shadow:
-    0 0 0 1px var(--glass-stroke) inset,
-    0 0 40px color-mix(in oklab, var(--brand-blue) 35%, transparent);
+    var(--glass-shadow),
+    0 0 40px color-mix(in oklab, var(--brand-blue) 30%, transparent);
 }
-.glass-glow:hover::after {
+.glass-glow:hover {
   box-shadow:
-    0 0 0 1px color-mix(in oklab, white 50%, transparent) inset,
-    0 0 70px color-mix(in oklab, var(--brand-blue) 55%, transparent);
+    var(--glass-shadow),
+    0 0 70px color-mix(in oklab, var(--brand-blue) 50%, transparent);
 }
 
 /* Scroll-aware navbar */
