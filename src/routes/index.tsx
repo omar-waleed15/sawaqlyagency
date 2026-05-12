@@ -107,11 +107,7 @@ function Hero() {
     <section id="top" className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground">
-            <span className="w-2 h-2 rounded-full bg-brand-yellow" />
-            Marketing that compounds
-          </span>
-          <h1 className="mt-6 text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
             <br />
             Growth that <span className="text-brand-yellow">sticks</span>.
