@@ -190,32 +190,79 @@ function Marquee() {
 
 function About() {
   return (
-    <section id="about" className="mx-auto max-w-7xl px-6 py-28 md:py-36 reveal">
-      <div className="grid md:grid-cols-12 gap-10 items-start">
-        <div className="md:col-span-4">
-          <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">About us</span>
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">A studio of strategists, makers, and growth nerds.</h2>
+    <section id="about" className="mx-auto max-w-7xl px-6 py-28 md:py-36">
+      <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        {/* Narrative */}
+        <div className="lg:col-span-5 space-y-7 reveal">
+          <div className="glass inline-flex items-center gap-2 rounded-full px-3 py-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+            <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-brand-blue">Our studio</span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight">
+            Bridging <span className="text-brand-blue">vision</span> and measurable <span className="text-brand-yellow">growth</span>.
+          </h2>
+          <div className="space-y-4 text-lg text-muted-foreground font-light leading-relaxed max-w-md">
+            <p>
+              We pair sharp strategy with relentless craft — helping challenger startups and
+              category leaders sound clearer, look sharper, and grow faster.
+            </p>
+            <p>
+              No silos. No hand-offs. One team shipping work that earns attention and revenue.
+            </p>
+          </div>
         </div>
-        <div className="md:col-span-7 md:col-start-6 space-y-5 text-lg text-muted-foreground font-light">
-          <p>
-            We pair sharp strategy with relentless craft. From challenger startups to
-            category leaders, we help brands sound clearer, look sharper, and grow faster.
-          </p>
-          <p>
-            No silos. No hand-offs. One team — strategy, creative, and media — sitting
-            shoulder to shoulder, shipping work that earns attention and revenue.
-          </p>
-          <div className="grid grid-cols-3 gap-4 pt-6">
-            {[
-              ["120+", "Brands launched"],
-              ["8x", "Avg. ROAS"],
-              ["14", "Industry awards"],
-            ].map(([n, l]) => (
-              <div key={l} className="glass rounded-2xl p-5">
-                <div className="font-display text-3xl md:text-4xl font-bold text-navy">{n}</div>
-                <div className="text-sm text-muted-foreground mt-1">{l}</div>
+
+        {/* Bento stats */}
+        <div className="lg:col-span-7 grid grid-cols-2 gap-5 reveal">
+          {/* Hero stat */}
+          <div className="col-span-2 md:col-span-1 glass glass-hover rounded-3xl p-7 flex flex-col justify-between aspect-square md:aspect-auto md:min-h-[260px] relative overflow-hidden">
+            <div className="glass glass-tint-blue w-12 h-12 rounded-2xl flex items-center justify-center">
+              <Megaphone size={20} className="text-brand-blue" />
+            </div>
+            <div>
+              <div className="font-display text-5xl md:text-6xl font-bold text-navy leading-none">120+</div>
+              <div className="mt-2 text-sm text-muted-foreground">Brands launched across 14 industries</div>
+            </div>
+            <div className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full" style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--brand-blue) 30%, transparent), transparent 70%)" }} />
+          </div>
+
+          <div className="col-span-2 md:col-span-1 grid gap-5">
+            {/* ROAS */}
+            <div className="glass glass-hover rounded-3xl p-6">
+              <div className="flex items-baseline justify-between">
+                <div className="font-display text-4xl font-bold text-navy">8×</div>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-brand-blue">ROAS</span>
               </div>
-            ))}
+              <div className="mt-3 text-sm text-muted-foreground">Average return on ad spend across paid media accounts.</div>
+              <div className="mt-4 h-1 w-full bg-foreground/5 rounded-full overflow-hidden">
+                <div className="h-full w-[88%] rounded-full" style={{ background: "var(--brand-yellow)" }} />
+              </div>
+            </div>
+
+            {/* Awards — accent */}
+            <div className="glass glass-tint-blue glass-hover glass-glow rounded-3xl p-6 relative overflow-hidden">
+              <div className="flex items-baseline justify-between">
+                <div className="font-display text-4xl font-bold text-navy">14</div>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-brand-blue">Awards</span>
+              </div>
+              <div className="mt-3 text-sm text-navy/70">Industry recognitions for craft, strategy, and results.</div>
+            </div>
+          </div>
+
+          {/* Wide footer card */}
+          <div className="col-span-2 glass glass-hover rounded-3xl p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            <div>
+              <div className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">One team</div>
+              <div className="mt-2 text-xl md:text-2xl font-bold text-navy leading-snug max-w-md">
+                Strategy, creative, and media — sitting shoulder to shoulder.
+              </div>
+            </div>
+            <a
+              href="#contact"
+              className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold whitespace-nowrap self-start md:self-auto"
+            >
+              Meet the team <ArrowRight size={14} />
+            </a>
           </div>
         </div>
       </div>
