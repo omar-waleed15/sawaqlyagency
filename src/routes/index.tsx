@@ -79,8 +79,8 @@ function Index() {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-40 backdrop-blur bg-background/80 border-b border-border">
-      <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-4 z-40 px-4">
+      <div className="mx-auto max-w-7xl glass glass-hover rounded-full px-6 h-14 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-2 font-display font-bold text-lg">
           <span className="inline-block w-7 h-7 rounded-md" style={{ background: "var(--gradient-brand)" }} />
           <span>Sawaqly</span>
@@ -92,8 +92,7 @@ function Header() {
         </nav>
         <a
           href="#contact"
-          className="hidden md:inline-flex items-center rounded-full px-5 py-2 text-sm font-medium text-primary-foreground"
-          style={{ background: "var(--gradient-brand)" }}
+          className="hidden md:inline-flex glass glass-tint-blue glass-hover items-center rounded-full px-5 py-2 text-sm font-medium"
         >
           Start a project
         </a>
