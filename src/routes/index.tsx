@@ -13,6 +13,7 @@ import {
   MapPin,
   Phone,
   Send,
+  ArrowRight,
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 
@@ -48,21 +49,36 @@ const services = [
 ];
 
 const brands = [
-  "ACME",
-  "NORTHWIND",
-  "GLOBEX",
-  "INITECH",
-  "UMBRELLA",
-  "STARK",
-  "WAYNE",
-  "HOOLI",
-  "PIED PIPER",
-  "SOYLENT",
+  "ACME", "NORTHWIND", "GLOBEX", "INITECH", "UMBRELLA",
+  "STARK", "WAYNE", "HOOLI", "PIED PIPER", "SOYLENT",
 ];
 
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
+
 function Index() {
+  useReveal();
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen text-foreground">
+      <div className="ambient-bg" aria-hidden>
+        <div className="ambient-orb" style={{ width: 380, height: 380, top: "30%", left: "40%", background: "radial-gradient(circle, color-mix(in oklab, var(--brand-blue) 45%, transparent), transparent 70%)" }} />
+      </div>
       <Header />
       <main>
         <Hero />
@@ -78,9 +94,18 @@ function Index() {
 }
 
 function Header() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
     <header className="sticky top-4 z-40 px-4">
-      <div className="mx-auto max-w-7xl glass glass-hover rounded-full px-6 h-14 flex items-center justify-between">
+      <div
+        className={`nav-shell mx-auto max-w-7xl glass glass-hover rounded-full px-6 h-14 flex items-center justify-between ${scrolled ? "scrolled" : ""}`}
+      >
         <a href="#top" className="flex items-center gap-2 font-display font-bold text-lg">
           <span className="inline-block w-7 h-7 rounded-md" style={{ background: "var(--gradient-brand)" }} />
           <span>Sawaqly</span>
@@ -92,9 +117,9 @@ function Header() {
         </nav>
         <a
           href="#contact"
-          className="hidden md:inline-flex glass glass-tint-blue glass-hover items-center rounded-full px-5 py-2 text-sm font-medium"
+          className="hidden md:inline-flex glass glass-tint-blue glass-hover glass-glow items-center gap-1.5 rounded-full px-5 py-2 text-sm font-medium"
         >
-          Start a project
+          Start a project <ArrowRight size={14} />
         </a>
       </div>
     </header>
@@ -104,33 +129,37 @@ function Header() {
 function Hero() {
   return (
     <section id="top" className="relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight">
+      <div className="mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid md:grid-cols-2 gap-12 items-center min-h-[88vh]">
+        <div className="reveal">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5 text-xs font-medium text-navy/80 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+            Marketing studio · Cairo
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
             <br />
             Growth that <span className="text-brand-yellow">sticks</span>.
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-xl">
+          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl font-light">
             Sawaqly is a full-service marketing agency turning bold ideas into measurable
-            momentum — from strategy and identity to campaigns, content, and conversion.
+            momentum — strategy, identity, campaigns, content, and conversion.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href="#contact"
-              className="glass glass-tint-blue glass-hover inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold"
+              className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold"
             >
-              Book a strategy call
+              Book a strategy call <ArrowRight size={16} />
             </a>
             <a
               href="#services"
-              className="glass glass-hover inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold text-navy"
+              className="glass glass-hover inline-flex items-center rounded-full px-7 py-3.5 text-sm font-semibold text-navy"
             >
               See our services
             </a>
           </div>
         </div>
-        <div className="flex justify-center md:justify-end">
+        <div className="flex justify-center md:justify-end reveal">
           <InteractiveLogo />
         </div>
       </div>
@@ -141,12 +170,14 @@ function Hero() {
 function Marquee() {
   const row = [...brands, ...brands];
   return (
-    <section className="py-16 border-y border-border bg-secondary/40">
-      <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-8">
+    <section className="py-20 reveal">
+      <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-10">
         Trusted by teams shipping bold work
       </p>
-      <div className="overflow-hidden">
-        <div className="flex gap-16 animate-marquee whitespace-nowrap w-max">
+      <div className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-10" />
+        <div className="flex gap-8 animate-marquee whitespace-nowrap w-max py-2">
           {row.map((b, i) => (
             <span
               key={i}
@@ -163,13 +194,13 @@ function Marquee() {
 
 function About() {
   return (
-    <section id="about" className="mx-auto max-w-7xl px-6 py-24 md:py-32">
+    <section id="about" className="mx-auto max-w-7xl px-6 py-28 md:py-36 reveal">
       <div className="grid md:grid-cols-12 gap-10 items-start">
         <div className="md:col-span-4">
           <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">About us</span>
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold">A studio of strategists, makers, and growth nerds.</h2>
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">A studio of strategists, makers, and growth nerds.</h2>
         </div>
-        <div className="md:col-span-7 md:col-start-6 space-y-5 text-lg text-muted-foreground">
+        <div className="md:col-span-7 md:col-start-6 space-y-5 text-lg text-muted-foreground font-light">
           <p>
             We pair sharp strategy with relentless craft. From challenger startups to
             category leaders, we help brands sound clearer, look sharper, and grow faster.
@@ -178,13 +209,13 @@ function About() {
             No silos. No hand-offs. One team — strategy, creative, and media — sitting
             shoulder to shoulder, shipping work that earns attention and revenue.
           </p>
-          <div className="grid grid-cols-3 gap-6 pt-6">
+          <div className="grid grid-cols-3 gap-4 pt-6">
             {[
               ["120+", "Brands launched"],
               ["8x", "Avg. ROAS"],
               ["14", "Industry awards"],
             ].map(([n, l]) => (
-              <div key={l}>
+              <div key={l} className="glass rounded-2xl p-5">
                 <div className="font-display text-3xl md:text-4xl font-bold text-navy">{n}</div>
                 <div className="text-sm text-muted-foreground mt-1">{l}</div>
               </div>
@@ -198,26 +229,25 @@ function About() {
 
 function Services() {
   return (
-    <section id="services" className="bg-secondary/40 border-y border-border">
-      <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-        <div className="max-w-2xl mb-14">
+    <section id="services" className="relative">
+      <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
+        <div className="max-w-2xl mb-14 reveal">
           <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Services</span>
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold">Everything you need to build a brand that ships.</h2>
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Everything you need to build a brand that ships.</h2>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map(({ icon: Icon, title, desc }) => (
+          {services.map(({ icon: Icon, title, desc }, i) => (
             <div
               key={title}
-              className="group glass glass-hover rounded-3xl p-7"
+              className="group glass glass-hover rounded-3xl p-7 reveal"
+              style={{ transitionDelay: `${(i % 3) * 60}ms` }}
             >
-              <div
-                className="glass glass-tint-blue w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
-              >
+              <div className="glass glass-tint-blue w-12 h-12 rounded-2xl flex items-center justify-center mb-5">
                 <Icon size={22} />
               </div>
               <h3 className="text-xl font-bold text-navy">{title}</h3>
-              <p className="mt-2 text-muted-foreground text-sm leading-relaxed">{desc}</p>
-              <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all" />
+              <p className="mt-2 text-muted-foreground text-sm leading-relaxed font-light">{desc}</p>
+              <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
             </div>
           ))}
         </div>
@@ -229,24 +259,24 @@ function Services() {
 function Contact() {
   const [sent, setSent] = useState(false);
   return (
-    <section id="contact" className="mx-auto max-w-7xl px-6 py-24 md:py-32">
+    <section id="contact" className="mx-auto max-w-7xl px-6 py-28 md:py-36">
       <div className="grid md:grid-cols-2 gap-14">
-        <div>
+        <div className="reveal">
           <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Contact</span>
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold">Let's build something worth talking about.</h2>
-          <p className="mt-5 text-lg text-muted-foreground max-w-md">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Let's build something worth talking about.</h2>
+          <p className="mt-5 text-lg text-muted-foreground max-w-md font-light">
             Tell us about your brand, your goals, and where you're stuck. We'll come back
             within one business day.
           </p>
-          <div className="mt-8 space-y-4 text-sm">
-            <div className="flex items-center gap-3"><Mail size={16} className="text-brand-blue" /> hello@sawaqly.com</div>
-            <div className="flex items-center gap-3"><Phone size={16} className="text-brand-blue" /> +20 100 000 0000</div>
-            <div className="flex items-center gap-3"><MapPin size={16} className="text-brand-blue" /> Cairo, Egypt</div>
+          <div className="mt-8 space-y-3 text-sm">
+            <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3"><Mail size={16} className="text-brand-blue" /> hello@sawaqly.com</div>
+            <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3"><Phone size={16} className="text-brand-blue" /> +20 100 000 0000</div>
+            <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3"><MapPin size={16} className="text-brand-blue" /> Cairo, Egypt</div>
           </div>
         </div>
         <form
           onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-          className="glass rounded-3xl p-8 space-y-4"
+          className="glass glass-strong rounded-3xl p-8 space-y-4 reveal"
         >
           <div className="grid grid-cols-2 gap-4">
             <Field label="Name" name="name" />
@@ -258,12 +288,12 @@ function Contact() {
             <textarea
               required
               rows={4}
-              className="mt-1 w-full rounded-lg border border-border bg-white/60 backdrop-blur px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+              className="glass-input mt-1.5 w-full rounded-xl px-3.5 py-2.5 text-sm"
             />
           </div>
           <button
             type="submit"
-            className="glass glass-tint-blue glass-hover inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+            className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold"
           >
             <Send size={16} /> {sent ? "Thanks — we'll be in touch" : "Send message"}
           </button>
@@ -282,7 +312,7 @@ function Field({ label, name, type = "text" }: { label: string; name: string; ty
         name={name}
         type={type}
         required
-        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+        className="glass-input mt-1.5 w-full rounded-xl px-3.5 py-2.5 text-sm"
       />
     </div>
   );
@@ -290,8 +320,8 @@ function Field({ label, name, type = "text" }: { label: string; name: string; ty
 
 function LocationMap() {
   return (
-    <section className="bg-secondary/40 border-t border-border">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+    <section className="relative">
+      <div className="mx-auto max-w-7xl px-6 py-24 reveal">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
             <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Find us</span>
@@ -301,21 +331,28 @@ function LocationMap() {
             href="https://maps.google.com/?q=Cairo,Egypt"
             target="_blank"
             rel="noreferrer"
-            className="text-sm font-semibold text-brand-blue hover:underline"
+            className="glass glass-hover rounded-full px-5 py-2.5 text-sm font-semibold text-brand-blue inline-flex items-center gap-1.5"
           >
-            Open in Google Maps →
+            Open in Google Maps <ArrowRight size={14} />
           </a>
         </div>
-        <div className="rounded-2xl overflow-hidden border border-border shadow-[var(--shadow-soft)]">
-          <iframe
-            title="Sawaqly office location"
-            src="https://www.google.com/maps?q=Cairo,Egypt&output=embed"
-            width="100%"
-            height="450"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            style={{ border: 0, display: "block" }}
-          />
+        <div className="relative glass rounded-3xl p-2 overflow-hidden">
+          <div className="rounded-2xl overflow-hidden">
+            <iframe
+              title="Sawaqly office location"
+              src="https://www.google.com/maps?q=Cairo,Egypt&output=embed"
+              width="100%"
+              height="460"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              style={{ border: 0, display: "block" }}
+            />
+          </div>
+          <div className="absolute left-6 bottom-6 glass glass-strong rounded-2xl px-5 py-4 max-w-xs hidden md:block">
+            <div className="text-xs uppercase tracking-[0.2em] text-brand-blue font-semibold">Studio</div>
+            <div className="mt-1 text-sm text-navy font-semibold">Sawaqly HQ</div>
+            <div className="mt-1 text-xs text-muted-foreground">Cairo, Egypt · Mon–Fri 9–6</div>
+          </div>
         </div>
       </div>
     </section>
@@ -324,14 +361,14 @@ function LocationMap() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto max-w-7xl px-6 py-12 grid md:grid-cols-3 gap-8 items-start">
+    <footer className="px-4 pb-6">
+      <div className="mx-auto max-w-7xl glass rounded-3xl px-8 py-10 grid md:grid-cols-3 gap-8 items-start">
         <div>
           <div className="flex items-center gap-2 font-display font-bold text-lg">
             <span className="inline-block w-7 h-7 rounded-md" style={{ background: "var(--gradient-brand)" }} />
             <span>Sawaqly</span>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground max-w-xs">
+          <p className="mt-3 text-sm text-muted-foreground max-w-xs font-light">
             Marketing agency building brands that move and growth that sticks.
           </p>
         </div>
@@ -352,7 +389,7 @@ function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
+      <div className="mx-auto max-w-7xl pt-5 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} Sawaqly Marketing Agency. All rights reserved.
       </div>
     </footer>
