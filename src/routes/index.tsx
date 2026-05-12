@@ -128,8 +128,17 @@ function Header() {
 
 function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid md:grid-cols-2 gap-12 items-center min-h-[88vh]">
+    <section id="top" className="relative">
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 bottom-0 -z-10 rounded-b-[80px] md:rounded-b-[140px] overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, color-mix(in oklab, var(--brand-blue) 14%, white) 0%, color-mix(in oklab, var(--brand-blue) 6%, white) 60%, color-mix(in oklab, var(--brand-yellow) 8%, white) 100%)",
+          boxShadow: "0 30px 60px -40px color-mix(in oklab, var(--brand-blue) 35%, transparent)",
+        }}
+      />
+      <div className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid md:grid-cols-2 gap-12 items-center min-h-[88vh]">
         <div className="reveal">
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
