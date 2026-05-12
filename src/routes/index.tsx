@@ -150,7 +150,7 @@ function Marquee() {
           {row.map((b, i) => (
             <span
               key={i}
-              className="font-display text-2xl md:text-3xl font-bold tracking-widest text-navy/70 hover:text-brand-blue transition"
+              className="glass glass-hover rounded-full px-7 py-3 font-display text-xl md:text-2xl font-bold tracking-widest text-navy/80"
             >
               {b}
             </span>
