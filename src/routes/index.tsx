@@ -175,7 +175,7 @@ function Hero() {
 function Marquee() {
   const row = [...brands, ...brands];
   return (
-    <section className="py-20 reveal">
+    <section className="relative bg-white py-20 reveal">
       <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-10">
         Trusted by teams shipping bold work
       </p>
