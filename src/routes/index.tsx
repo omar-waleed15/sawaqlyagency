@@ -118,14 +118,13 @@ function Hero() {
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href="#contact"
-              className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
-              style={{ background: "var(--gradient-brand)" }}
+              className="glass glass-tint-blue glass-hover inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold"
             >
               Book a strategy call
             </a>
             <a
               href="#services"
-              className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold border border-border hover:border-brand-blue transition"
+              className="glass glass-hover inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold text-navy"
             >
               See our services
             </a>
