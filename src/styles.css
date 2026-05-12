@@ -196,17 +196,15 @@
 }
 
 /* Liquid glow pulse for primary CTAs */
-.glass-glow { position: relative; }
-.glass-glow::after {
-  /* extend stroke layer with glow */
+.glass-glow {
   box-shadow:
-    0 0 0 1px var(--glass-stroke) inset,
-    0 0 40px color-mix(in oklab, var(--brand-blue) 35%, transparent);
+    var(--glass-shadow),
+    0 0 40px color-mix(in oklab, var(--brand-blue) 30%, transparent);
 }
-.glass-glow:hover::after {
+.glass-glow:hover {
   box-shadow:
-    0 0 0 1px color-mix(in oklab, white 50%, transparent) inset,
-    0 0 70px color-mix(in oklab, var(--brand-blue) 55%, transparent);
+    var(--glass-shadow),
+    0 0 70px color-mix(in oklab, var(--brand-blue) 50%, transparent);
 }
 
 /* Scroll-aware navbar */
