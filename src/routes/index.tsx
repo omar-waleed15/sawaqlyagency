@@ -246,7 +246,7 @@ function Contact() {
         </div>
         <form
           onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-          className="bg-card border border-border rounded-2xl p-8 shadow-[var(--shadow-soft)] space-y-4"
+          className="glass rounded-3xl p-8 space-y-4"
         >
           <div className="grid grid-cols-2 gap-4">
             <Field label="Name" name="name" />
@@ -258,13 +258,12 @@ function Contact() {
             <textarea
               required
               rows={4}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-border bg-white/60 backdrop-blur px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
             />
           </div>
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground"
-            style={{ background: "var(--gradient-brand)" }}
+            className="glass glass-tint-blue glass-hover inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
           >
             <Send size={16} /> {sent ? "Thanks — we'll be in touch" : "Send message"}
           </button>
