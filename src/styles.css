@@ -37,42 +37,49 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.18 0.05 265);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.05 265);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.05 265);
+
+  /* Dark liquid-glass palette */
+  --background: oklch(0.16 0.08 270);          /* #0A102E base */
+  --foreground: oklch(0.96 0.02 250);
+  --card: oklch(0.22 0.04 270);
+  --card-foreground: oklch(0.96 0.02 250);
+  --popover: oklch(0.22 0.04 270);
+  --popover-foreground: oklch(0.96 0.02 250);
 
   --navy: oklch(0.22 0.09 265);
-  --brand-blue: oklch(0.55 0.22 265);
-  --brand-yellow: oklch(0.86 0.17 92);
+  --brand-blue: oklch(0.45 0.22 265);          /* #1B3AC5 */
+  --brand-yellow: oklch(0.88 0.18 92);         /* #FFD000 */
 
-  --primary: oklch(0.22 0.09 265);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.02 250);
-  --secondary-foreground: oklch(0.22 0.09 265);
-  --muted: oklch(0.97 0.01 250);
-  --muted-foreground: oklch(0.45 0.03 260);
-  --accent: oklch(0.86 0.17 92);
-  --accent-foreground: oklch(0.22 0.09 265);
+  --primary: oklch(0.88 0.18 92);
+  --primary-foreground: oklch(0.16 0.08 270);
+  --secondary: oklch(0.24 0.05 270);
+  --secondary-foreground: oklch(0.96 0.02 250);
+  --muted: oklch(0.24 0.04 270);
+  --muted-foreground: oklch(0.72 0.03 260);
+  --accent: oklch(0.88 0.18 92);
+  --accent-foreground: oklch(0.16 0.08 270);
   --destructive: oklch(0.6 0.24 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.92 0.01 255);
-  --input: oklch(0.92 0.01 255);
-  --ring: oklch(0.55 0.22 265);
+  --border: oklch(0.32 0.04 270);
+  --input: oklch(0.3 0.04 270);
+  --ring: oklch(0.65 0.18 265);
 
   --gradient-brand: linear-gradient(135deg, var(--brand-blue), var(--navy));
-  --shadow-soft: 0 10px 30px -12px color-mix(in oklab, var(--navy) 25%, transparent);
-  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--brand-blue) 40%, transparent);
+  --shadow-soft: 0 10px 30px -12px rgba(0,0,0,0.4);
+  --shadow-glow: 0 20px 60px -20px rgba(27,58,197,0.4);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
   body {
-    background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(27,58,197,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,208,0,0.08) 0%, transparent 55%),
+      #0A102E;
+    background-attachment: fixed;
+    min-height: 100vh;
   }
   h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
 }
@@ -83,78 +90,186 @@
 }
 .animate-marquee { animation: marquee 30s linear infinite; }
 
-/* Liquid glass system */
-:root {
-  --glass-bg: color-mix(in oklab, white 55%, transparent);
-  --glass-bg-strong: color-mix(in oklab, white 70%, transparent);
-  --glass-border: color-mix(in oklab, white 70%, transparent);
-  --glass-stroke: color-mix(in oklab, var(--navy) 8%, transparent);
-  --glass-highlight: linear-gradient(
-    135deg,
-    color-mix(in oklab, white 85%, transparent) 0%,
-    color-mix(in oklab, white 20%, transparent) 35%,
-    color-mix(in oklab, white 5%, transparent) 60%,
-    color-mix(in oklab, white 40%, transparent) 100%
-  );
-  --glass-shadow:
-    0 1px 0 0 color-mix(in oklab, white 80%, transparent) inset,
-    0 -1px 0 0 color-mix(in oklab, var(--navy) 8%, transparent) inset,
-    0 10px 30px -12px color-mix(in oklab, var(--navy) 20%, transparent),
-    0 30px 60px -30px color-mix(in oklab, var(--brand-blue) 25%, transparent);
+/* ============ NAVBAR ============ */
+.glass-nav {
+  background: rgba(10, 16, 46, 0.35);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-bottom: 1px solid rgba(186, 195, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
-.glass {
+/* ============ BUTTONS ============ */
+.btn-primary,
+.nav-cta {
   position: relative;
-  background: var(--glass-bg);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #FFD000;
+  color: #0A102E;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(255,208,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.glass::before {
-  content: "";
-  position: absolute; inset: 0;
-  border-radius: inherit;
-  background: var(--glass-highlight);
-  mix-blend-mode: overlay;
-  opacity: 0.6;
+.btn-primary::before,
+.nav-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
   pointer-events: none;
-  z-index: 0;
+  border-radius: 8px 8px 0 0;
 }
-.glass::after {
-  content: "";
-  position: absolute; inset: 0;
-  border-radius: inherit;
-  box-shadow: 0 0 0 1px var(--glass-stroke) inset;
-  pointer-events: none;
-  z-index: 1;
+.btn-primary:hover,
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255,208,0,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
 }
-.glass > * { position: relative; z-index: 2; }
 
-.glass-strong { background: var(--glass-bg-strong); }
-
-.glass-tint-blue {
-  background:
-    linear-gradient(135deg,
-      color-mix(in oklab, var(--brand-blue) 22%, transparent),
-      color-mix(in oklab, var(--navy) 35%, transparent));
-  color: var(--primary-foreground);
-  border: 1px solid color-mix(in oklab, white 30%, transparent);
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(186, 195, 255, 0.06);
+  border: 1px solid rgba(186, 195, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: #E8ECFF;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
 }
-.glass-tint-blue::before { opacity: 0.5; }
-
-.glass-hover {
-  transition: transform .35s cubic-bezier(.2,.8,.2,1),
-              box-shadow .35s ease,
-              background .35s ease;
+.btn-ghost:hover {
+  background: rgba(186,195,255,0.12);
+  border-color: rgba(186,195,255,0.35);
 }
-.glass-hover:hover {
-  transform: translateY(-2px);
-  background: var(--glass-bg-strong);
+
+/* ============ CARDS ============ */
+.glass-card,
+.service-card,
+.testimonial,
+.pillar,
+.hero-card {
+  background: rgba(30, 31, 39, 0.55);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(186, 195, 255, 0.1);
   box-shadow:
-    0 1px 0 0 color-mix(in oklab, white 90%, transparent) inset,
-    0 -1px 0 0 color-mix(in oklab, var(--navy) 10%, transparent) inset,
-    0 18px 40px -14px color-mix(in oklab, var(--navy) 28%, transparent),
-    0 40px 70px -30px color-mix(in oklab, var(--brand-blue) 35%, transparent);
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 4px 24px rgba(0,0,0,0.3);
+  border-radius: 12px;
+  transition: border-color .3s ease, box-shadow .3s ease, transform .3s ease;
+}
+.service-card:hover,
+.pillar:hover,
+.testimonial:hover {
+  border-color: rgba(186, 195, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 8px 32px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(186,195,255,0.1);
+  transform: translateY(-2px);
+}
+
+.service-card.featured {
+  background: rgba(27, 58, 197, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(186, 195, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 32px rgba(27,58,197,0.3);
+}
+
+/* ============ STAT ITEM ============ */
+.stat-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  padding: 1.25rem;
+}
+
+/* ============ FORM ============ */
+.glass-form {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(186,195,255,0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 40px;
+}
+.glass-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(186,195,255,0.2);
+  color: #E8ECFF;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color .2s ease;
+}
+.glass-input::placeholder { color: rgba(186,195,255,0.4); }
+.glass-input:focus { border-color: rgba(186,195,255,0.6); }
+
+/* ============ LOCATION ============ */
+.location-card {
+  background: rgba(15, 24, 56, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(186,195,255,0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.4);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.map-placeholder {
+  background: rgba(10,16,46,0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ============ SECTION LABEL PILL ============ */
+.section-label {
+  display: inline-block;
+  background: rgba(255,208,0,0.1);
+  border: 1px solid rgba(255,208,0,0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px 14px;
+  border-radius: 99px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  color: #FFD000;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ============ TAG ============ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(186,195,255,0.08);
+  border: 1px solid rgba(186,195,255,0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 99px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  padding: 0.5rem 1rem;
+  color: #E8ECFF;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
