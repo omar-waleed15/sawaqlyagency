@@ -208,15 +208,14 @@ function Services() {
           {services.map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
-              className="group bg-card rounded-2xl p-7 border border-border hover:border-brand-blue/40 hover:shadow-[var(--shadow-soft)] transition-all"
+              className="group glass glass-hover rounded-3xl p-7"
             >
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 text-primary-foreground"
-                style={{ background: "var(--gradient-brand)" }}
+                className="glass glass-tint-blue w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
               >
                 <Icon size={22} />
               </div>
-              <h3 className="text-xl font-bold">{title}</h3>
+              <h3 className="text-xl font-bold text-navy">{title}</h3>
               <p className="mt-2 text-muted-foreground text-sm leading-relaxed">{desc}</p>
               <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all" />
             </div>
