@@ -131,10 +131,6 @@ function Hero() {
     <section id="top" className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid md:grid-cols-2 gap-12 items-center min-h-[88vh]">
         <div className="reveal">
-          <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5 text-xs font-medium text-navy/80 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-            Marketing studio · Cairo
-          </div>
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
             <br />
