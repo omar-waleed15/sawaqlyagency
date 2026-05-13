@@ -16,6 +16,8 @@ import {
   ArrowRight,
   Linkedin,
   Twitter,
+  Menu,
+  X,
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 
