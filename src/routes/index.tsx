@@ -14,6 +14,8 @@ import {
   Phone,
   Send,
   ArrowRight,
+  Linkedin,
+  Twitter,
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 
@@ -85,6 +87,7 @@ function Index() {
         <Marquee />
         <About />
         <Services />
+        <Team />
         <Contact />
         <LocationMap />
       </main>
@@ -253,6 +256,61 @@ function Services() {
               <h3 className="text-xl font-bold text-navy">{title}</h3>
               <p className="mt-2 text-muted-foreground text-sm leading-relaxed font-light">{desc}</p>
               <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+const team = [
+  { name: "Layla Hassan", role: "Founder & Creative Director", initials: "LH", tint: "blue" },
+  { name: "Omar El-Sayed", role: "Head of Strategy", initials: "OS", tint: "yellow" },
+  { name: "Mariam Adel", role: "Design Lead", initials: "MA", tint: "blue" },
+  { name: "Youssef Nabil", role: "Performance Marketing Lead", initials: "YN", tint: "yellow" },
+];
+
+function Team() {
+  return (
+    <section id="team" className="relative">
+      <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
+        <div className="flex items-end justify-between mb-14 flex-wrap gap-6 reveal">
+          <div className="max-w-2xl">
+            <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Our team</span>
+            <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Meet the people behind the work.</h2>
+          </div>
+          <p className="max-w-sm text-muted-foreground font-light">
+            A tight-knit crew of strategists, designers, and growth operators — building brands shoulder to shoulder with you.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {team.map((m, i) => (
+            <div
+              key={m.name}
+              className="group glass glass-hover rounded-3xl p-6 reveal"
+              style={{ transitionDelay: `${(i % 4) * 60}ms` }}
+            >
+              <div
+                className={`glass ${m.tint === "blue" ? "glass-tint-blue" : ""} aspect-square w-full rounded-2xl flex items-center justify-center mb-5`}
+                style={
+                  m.tint === "yellow"
+                    ? { background: "color-mix(in oklab, var(--brand-yellow) 22%, white)" }
+                    : undefined
+                }
+              >
+                <span className="font-display text-5xl font-bold text-navy/80">{m.initials}</span>
+              </div>
+              <h3 className="text-lg font-bold text-navy">{m.name}</h3>
+              <p className="text-sm text-muted-foreground mt-1 font-light">{m.role}</p>
+              <div className="mt-5 flex items-center justify-between">
+                <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
+                <div className="flex gap-2 opacity-70 group-hover:opacity-100 transition">
+                  <a href="#" aria-label={`${m.name} on LinkedIn`} className="glass rounded-full p-2"><Linkedin size={14} /></a>
+                  <a href="#" aria-label={`${m.name} on Twitter`} className="glass rounded-full p-2"><Twitter size={14} /></a>
+                </div>
+              </div>
             </div>
           ))}
         </div>
