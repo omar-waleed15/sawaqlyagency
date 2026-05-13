@@ -85,6 +85,7 @@ function Index() {
         <Marquee />
         <About />
         <Services />
+        <Team />
         <Contact />
         <LocationMap />
       </main>
