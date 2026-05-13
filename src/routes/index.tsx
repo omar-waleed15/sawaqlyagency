@@ -153,7 +153,7 @@ function Hero() {
           boxShadow: "0 40px 70px -40px color-mix(in oklab, var(--brand-blue) 45%, transparent)",
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid lg:grid-cols-2 gap-12 items-center min-h-[88vh]">
+      <div className="relative mx-auto max-w-7xl px-6 pt-8 md:pt-12 lg:pt-24 pb-12 md:pb-16 lg:pb-32 grid lg:grid-cols-2 gap-12 items-center min-h-[60vh] lg:min-h-[88vh]">
         <div className="reveal">
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
