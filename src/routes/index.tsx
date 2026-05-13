@@ -152,8 +152,7 @@ function Header() {
         </button>
       </div>
       <div
-        className={`md:hidden mx-auto max-w-[88rem] mt-2 origin-top transition-all duration-300 ease-out ${open ? "opacity-100 scale-y-100 pointer-events-auto" : "opacity-0 scale-y-95 pointer-events-none"
-          }`}
+        className={`md:hidden mx-auto max-w-[88rem] overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-96 opacity-100 mt-2 pointer-events-auto" : "max-h-0 opacity-0 mt-0 pointer-events-none"}`}
       >
         <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
           <a onClick={() => setOpen(false)} href="#about" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/40 transition">About</a>
@@ -184,7 +183,7 @@ function Hero() {
           boxShadow: "0 40px 70px -40px color-mix(in oklab, var(--brand-blue) 45%, transparent)",
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-6 pt-8 md:pt-12 lg:pt-2 pb-12 md:pb-16 lg:pb-4 grid lg:grid-cols-2 gap-12 items-center min-h-[60vh] lg:min-h-[55vh]">
+      <div className="relative mx-auto max-w-7xl px-6 pt-24 md:pt-24 lg:pt-12 pb-10 md:pb-20 lg:pb-14 grid lg:grid-cols-2 gap-12 items-start lg:items-center lg:min-h-[65vh]">
         <div className="reveal">
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
@@ -225,10 +224,10 @@ function Marquee() {
       <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-10">
         Trusted by teams shipping bold work
       </p>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-x-hidden">
         <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-10" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-10" />
-        <div className="flex gap-8 animate-marquee whitespace-nowrap w-max py-2">
+        <div className="flex gap-8 animate-marquee whitespace-nowrap w-max py-4">
           {row.map((b, i) => (
             <span
               key={i}
