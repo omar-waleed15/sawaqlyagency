@@ -152,9 +152,8 @@ function Header() {
         </button>
       </div>
       <div
-        className={`md:hidden mx-auto max-w-[88rem] mt-2 origin-top transition-all duration-300 ease-out ${
-          open ? "opacity-100 scale-y-100 pointer-events-auto" : "opacity-0 scale-y-95 pointer-events-none"
-        }`}
+        className={`md:hidden mx-auto max-w-[88rem] mt-2 origin-top transition-all duration-300 ease-out ${open ? "opacity-100 scale-y-100 pointer-events-auto" : "opacity-0 scale-y-95 pointer-events-none"
+          }`}
       >
         <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
           <a onClick={() => setOpen(false)} href="#about" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/40 transition">About</a>
@@ -185,7 +184,7 @@ function Hero() {
           boxShadow: "0 40px 70px -40px color-mix(in oklab, var(--brand-blue) 45%, transparent)",
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-6 pt-8 md:pt-12 lg:pt-24 pb-12 md:pb-16 lg:pb-32 grid lg:grid-cols-2 gap-12 items-center min-h-[60vh] lg:min-h-[88vh]">
+      <div className="relative mx-auto max-w-7xl px-6 pt-8 md:pt-12 lg:pt-2 pb-12 md:pb-16 lg:pb-4 grid lg:grid-cols-2 gap-12 items-center min-h-[60vh] lg:min-h-[55vh]">
         <div className="reveal">
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
