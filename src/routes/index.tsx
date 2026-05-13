@@ -98,16 +98,28 @@ function Index() {
 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    lastY.current = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      const delta = y - lastY.current;
+      if (y > 80 && delta > 4) setHidden(true);
+      else if (delta < -4) setHidden(false);
+      lastY.current = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-    <header className="sticky top-4 z-40 px-4">
+    <header
+      className={`sticky top-4 z-40 px-4 transition-transform duration-300 ease-out ${hidden ? "-translate-y-[150%]" : "translate-y-0"}`}
+    >
       <div
-        className={`nav-shell mx-auto max-w-7xl glass glass-hover rounded-full px-6 h-14 flex items-center justify-between ${scrolled ? "scrolled" : ""}`}
+        className={`nav-shell mx-auto max-w-[88rem] glass glass-hover rounded-full px-8 h-14 flex items-center justify-between ${scrolled ? "scrolled" : ""}`}
       >
         <a href="#top" className="flex items-center gap-2 font-display font-bold text-lg">
           <span className="inline-block w-7 h-7 rounded-md" style={{ background: "var(--gradient-brand)" }} />
