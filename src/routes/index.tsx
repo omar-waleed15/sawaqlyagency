@@ -59,20 +59,17 @@ const brands = [
 
 function useReveal() {
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".reveal");
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("in");
-            io.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.12 }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    // Add "in" to all reveal elements immediately on mount
+    // and re-check whenever DOM changes
+    const apply = () => {
+      document.querySelectorAll<HTMLElement>(".reveal:not(.in)").forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 100) el.classList.add("in");
+      });
+    };
+    apply();
+    window.addEventListener("scroll", apply, { passive: true });
+    return () => window.removeEventListener("scroll", apply);
   }, []);
 }
 
@@ -87,11 +84,10 @@ function Index() {
       <main>
         <Hero />
         <Marquee />
-        <About />
         <Services />
         <Team />
-        <Contact />
         <LocationMap />
+        <Contact />
       </main>
       <Footer />
     </div>
@@ -242,46 +238,13 @@ function Marquee() {
   );
 }
 
-function About() {
-  return (
-    <section id="about" className="mx-auto max-w-7xl px-6 py-28 md:py-36 reveal">
-      <div className="grid md:grid-cols-12 gap-10 items-start">
-        <div className="md:col-span-4">
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">A studio of strategists, makers, and growth nerds.</h2>
-        </div>
-        <div className="md:col-span-7 md:col-start-6 space-y-5 text-lg text-muted-foreground font-light">
-          <p>
-            We pair sharp strategy with relentless craft. From challenger startups to
-            category leaders, we help brands sound clearer, look sharper, and grow faster.
-          </p>
-          <p>
-            No silos. No hand-offs. One team — strategy, creative, and media — sitting
-            shoulder to shoulder, shipping work that earns attention and revenue.
-          </p>
-          <div className="grid grid-cols-3 gap-4 pt-6">
-            {[
-              ["120+", "Brands launched"],
-              ["8x", "Avg. ROAS"],
-              ["14", "Industry awards"],
-            ].map(([n, l]) => (
-              <div key={l} className="glass rounded-2xl p-5">
-                <div className="font-display text-3xl md:text-4xl font-bold text-navy">{n}</div>
-                <div className="text-sm text-muted-foreground mt-1">{l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function Services() {
   return (
-    <section id="services" className="relative">
-      <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
-        <div className="max-w-2xl mb-14 reveal">
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Everything you need to build a brand that ships.</h2>
+    <section id="services" className="relative bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-14 md:py-18">
+        <div className="mb-14 text-center">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">What We Are Doing</h2>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map(({ icon: Icon, title, desc }, i) => (
@@ -312,15 +275,10 @@ const team = [
 
 function Team() {
   return (
-    <section id="team" className="relative">
+    <section id="team" className="relative bg-white">
       <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
-        <div className="flex items-end justify-between mb-14 flex-wrap gap-6 reveal">
-          <div className="max-w-2xl">
-            <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Meet the people behind the work.</h2>
-          </div>
-          <p className="max-w-sm text-muted-foreground font-light">
-            A tight-knit crew of strategists, designers, and growth operators — building brands shoulder to shoulder with you.
-          </p>
+        <div className="mb-14 text-center">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Meet the people behind the work.</h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {team.map((m, i) => (
@@ -352,7 +310,7 @@ function Team() {
 function Contact() {
   const [sent, setSent] = useState(false);
   return (
-    <section id="contact" className="mx-auto max-w-7xl px-6 py-28 md:py-36">
+    <section id="contact" className="mx-auto max-w-7xl px-6 py-14 md:py-18">
       <div className="grid md:grid-cols-2 gap-14">
         <div className="reveal">
           <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Let's build something worth talking about.</h2>
@@ -412,8 +370,8 @@ function Field({ label, name, type = "text" }: { label: string; name: string; ty
 
 function LocationMap() {
   return (
-    <section className="relative">
-      <div className="mx-auto max-w-7xl px-6 py-24 reveal">
+    <section className="relative bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-12 reveal">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
             <h2 className="mt-3 text-3xl md:text-4xl font-bold">Come say hi.</h2>
