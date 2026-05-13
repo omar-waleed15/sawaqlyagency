@@ -16,6 +16,8 @@ import {
   ArrowRight,
   Linkedin,
   Twitter,
+  Menu,
+  X,
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 
@@ -99,6 +101,7 @@ function Index() {
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [open, setOpen] = useState(false);
   const lastY = useRef(0);
   useEffect(() => {
     lastY.current = window.scrollY;
@@ -106,8 +109,10 @@ function Header() {
       const y = window.scrollY;
       setScrolled(y > 24);
       const delta = y - lastY.current;
-      if (y > 80 && delta > 4) setHidden(true);
-      else if (delta < -4) setHidden(false);
+      if (y > 80 && delta > 4) {
+        setHidden(true);
+        setOpen(false);
+      } else if (delta < -4) setHidden(false);
       lastY.current = y;
     };
     onScroll();
@@ -119,7 +124,7 @@ function Header() {
       className={`sticky top-4 z-40 px-4 transition-transform duration-300 ease-out ${hidden ? "-translate-y-[150%]" : "translate-y-0"}`}
     >
       <div
-        className={`nav-shell mx-auto max-w-[88rem] glass glass-hover rounded-full px-8 h-14 flex items-center justify-between ${scrolled ? "scrolled" : ""}`}
+        className={`nav-shell mx-auto max-w-[88rem] glass glass-hover rounded-full px-6 md:px-8 h-14 flex items-center justify-between ${scrolled ? "scrolled" : ""}`}
       >
         <a href="#top" className="flex items-center gap-2 font-display font-bold text-lg">
           <span className="inline-block w-7 h-7 rounded-md" style={{ background: "var(--gradient-brand)" }} />
@@ -136,6 +141,33 @@ function Header() {
         >
           Start a project <ArrowRight size={14} />
         </a>
+        <button
+          type="button"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="md:hidden glass glass-hover rounded-full p-2 text-navy"
+        >
+          {open ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
+      <div
+        className={`md:hidden mx-auto max-w-[88rem] mt-2 origin-top transition-all duration-300 ease-out ${
+          open ? "opacity-100 scale-y-100 pointer-events-auto" : "opacity-0 scale-y-95 pointer-events-none"
+        }`}
+      >
+        <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
+          <a onClick={() => setOpen(false)} href="#about" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/40 transition">About</a>
+          <a onClick={() => setOpen(false)} href="#services" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/40 transition">Services</a>
+          <a onClick={() => setOpen(false)} href="#contact" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/40 transition">Contact</a>
+          <a
+            onClick={() => setOpen(false)}
+            href="#contact"
+            className="glass glass-tint-blue glass-hover glass-glow mt-2 inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-3 text-sm font-semibold"
+          >
+            Start a project <ArrowRight size={14} />
+          </a>
+        </div>
       </div>
     </header>
   );
