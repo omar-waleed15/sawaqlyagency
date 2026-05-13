@@ -14,6 +14,8 @@ import {
   Phone,
   Send,
   ArrowRight,
+  Linkedin,
+  Twitter,
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 
