@@ -165,6 +165,12 @@
 
 .glass-strong { background: var(--glass-bg-strong); }
 
+.glass-light {
+  box-shadow:
+    0 4px 16px -6px color-mix(in oklab, var(--navy) 10%, transparent),
+    0 12px 32px -18px color-mix(in oklab, var(--brand-blue) 10%, transparent);
+}
+
 .glass-tint-blue {
   background:
     linear-gradient(135deg,

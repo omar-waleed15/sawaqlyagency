@@ -231,7 +231,7 @@ function Marquee() {
           {row.map((b, i) => (
             <span
               key={i}
-              className="glass glass-hover rounded-full px-7 py-3 font-display text-xl md:text-2xl font-bold tracking-widest text-navy/80"
+              className="glass glass-light glass-hover rounded-full px-4 py-1.5 md:px-7 md:py-3 font-display text-sm md:text-xl lg:text-2xl font-bold tracking-widest text-navy/80"
             >
               {b}
             </span>
@@ -290,9 +290,7 @@ function Services() {
               className="group glass glass-hover rounded-3xl p-7 reveal"
               style={{ transitionDelay: `${(i % 3) * 60}ms` }}
             >
-              <div className="glass glass-tint-blue w-12 h-12 rounded-2xl flex items-center justify-center mb-5">
-                <Icon size={22} />
-              </div>
+              <Icon size={28} className="mb-5 text-brand-blue" />
               <h3 className="text-xl font-bold text-navy">{title}</h3>
               <p className="mt-2 text-muted-foreground text-sm leading-relaxed font-light">{desc}</p>
               <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
@@ -332,7 +330,7 @@ function Team() {
               style={{ transitionDelay: `${(i % 4) * 60}ms` }}
             >
               <div
-                className={`glass ${m.tint === "blue" ? "glass-tint-blue" : ""} aspect-square w-full rounded-2xl flex items-center justify-center mb-5`}
+                className={`glass ${m.tint === "blue" ? "glass-tint-blue" : ""} aspect-[3/4] w-full rounded-2xl flex items-center justify-center mb-5`}
                 style={
                   m.tint === "yellow"
                     ? { background: "color-mix(in oklab, var(--brand-yellow) 22%, white)" }
@@ -343,13 +341,6 @@ function Team() {
               </div>
               <h3 className="text-lg font-bold text-navy">{m.name}</h3>
               <p className="text-sm text-muted-foreground mt-1 font-light">{m.role}</p>
-              <div className="mt-5 flex items-center justify-between">
-                <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
-                <div className="flex gap-2 opacity-70 group-hover:opacity-100 transition">
-                  <a href="#" aria-label={`${m.name} on LinkedIn`} className="glass rounded-full p-2"><Linkedin size={14} /></a>
-                  <a href="#" aria-label={`${m.name} on Twitter`} className="glass rounded-full p-2"><Twitter size={14} /></a>
-                </div>
-              </div>
             </div>
           ))}
         </div>
