@@ -153,7 +153,7 @@ function Hero() {
           boxShadow: "0 40px 70px -40px color-mix(in oklab, var(--brand-blue) 45%, transparent)",
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid md:grid-cols-2 gap-12 items-center min-h-[88vh]">
+      <div className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-24 pb-24 md:pb-32 grid lg:grid-cols-2 gap-12 items-center min-h-[88vh]">
         <div className="reveal">
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight">
             Brands that <span className="text-brand-blue">move</span>.
@@ -164,22 +164,22 @@ function Hero() {
             Sawaqly is a full-service marketing agency turning bold ideas into measurable
             momentum — strategy, identity, campaigns, content, and conversion.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-row flex-nowrap gap-3">
             <a
               href="#contact"
-              className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold"
+              className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center justify-center gap-2 rounded-full px-5 sm:px-7 py-3 sm:py-3.5 text-sm font-semibold whitespace-nowrap"
             >
               Book a strategy call <ArrowRight size={16} />
             </a>
             <a
               href="#services"
-              className="glass glass-hover inline-flex items-center rounded-full px-7 py-3.5 text-sm font-semibold text-navy"
+              className="glass glass-hover inline-flex items-center justify-center rounded-full px-5 sm:px-7 py-3 sm:py-3.5 text-sm font-semibold text-navy whitespace-nowrap"
             >
               See our services
             </a>
           </div>
         </div>
-        <div className="flex justify-center md:justify-end reveal">
+        <div className="hidden lg:flex justify-center lg:justify-end reveal">
           <InteractiveLogo />
         </div>
       </div>
