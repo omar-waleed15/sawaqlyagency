@@ -205,7 +205,6 @@ function About() {
     <section id="about" className="mx-auto max-w-7xl px-6 py-28 md:py-36 reveal">
       <div className="grid md:grid-cols-12 gap-10 items-start">
         <div className="md:col-span-4">
-          <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">About us</span>
           <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">A studio of strategists, makers, and growth nerds.</h2>
         </div>
         <div className="md:col-span-7 md:col-start-6 space-y-5 text-lg text-muted-foreground font-light">
@@ -240,7 +239,6 @@ function Services() {
     <section id="services" className="relative">
       <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
         <div className="max-w-2xl mb-14 reveal">
-          <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Services</span>
           <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Everything you need to build a brand that ships.</h2>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -278,7 +276,6 @@ function Team() {
       <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
         <div className="flex items-end justify-between mb-14 flex-wrap gap-6 reveal">
           <div className="max-w-2xl">
-            <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Our team</span>
             <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Meet the people behind the work.</h2>
           </div>
           <p className="max-w-sm text-muted-foreground font-light">
@@ -325,7 +322,6 @@ function Contact() {
     <section id="contact" className="mx-auto max-w-7xl px-6 py-28 md:py-36">
       <div className="grid md:grid-cols-2 gap-14">
         <div className="reveal">
-          <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Contact</span>
           <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Let's build something worth talking about.</h2>
           <p className="mt-5 text-lg text-muted-foreground max-w-md font-light">
             Tell us about your brand, your goals, and where you're stuck. We'll come back
@@ -387,7 +383,6 @@ function LocationMap() {
       <div className="mx-auto max-w-7xl px-6 py-24 reveal">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
-            <span className="text-xs uppercase tracking-[0.25em] text-brand-blue font-semibold">Find us</span>
             <h2 className="mt-3 text-3xl md:text-4xl font-bold">Come say hi.</h2>
           </div>
           <a
