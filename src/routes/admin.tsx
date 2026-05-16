@@ -25,8 +25,8 @@ function AdminLayout() {
       {/* Sidebar */}
       <aside className="w-64 border-r border-border bg-card/50 flex flex-col p-6 glass-strong">
         <div className="font-display font-bold text-xl mb-10 flex items-center gap-3">
-          <span className="w-8 h-8 rounded-lg" style={{ background: "var(--gradient-brand)" }}></span>
-          Admin
+          <img src="/SAWAQLYLOGO1.png" alt="Sawaqly" className="h-8 w-auto object-contain" />
+          <span>SAWAQLY</span>
         </div>
         
         <nav className="flex-1 flex flex-col gap-2">

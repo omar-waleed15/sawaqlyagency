@@ -48,8 +48,8 @@ function Login() {
       >
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 font-display font-bold text-2xl mb-2">
-            <span className="inline-block w-8 h-8 rounded-lg" style={{ background: "var(--gradient-brand)" }} />
-            <span>Sawaqly Admin</span>
+            <img src="/SAWAQLYLOGO1.png" alt="Sawaqly" className="h-10 w-auto object-contain" />
+            <span>SAWAQLY Admin</span>
           </div>
           <p className="text-sm text-muted-foreground font-light">Secure login portal</p>
         </div>

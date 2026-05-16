@@ -15,13 +15,18 @@ function AdminSettings() {
     office_location: '',
     office_hours: '',
     map_share_url: '',
-    map_embed_url: ''
+    map_embed_url: '',
+    contact_email: '',
+    contact_phone: '',
+    social_instagram: '',
+    social_facebook: '',
+    social_tiktok: ''
   });
 
   const { data: settings, isLoading } = useQuery({
-    queryKey: ['site_settings'],
+    queryKey: ['social_media'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+      const { data, error } = await supabase.from('social_media').select('*').eq('id', 1).single();
       if (error && error.code !== 'PGRST116') throw error;
       return data || { office_name: 'Sawaqly HQ', office_location: 'Cairo, Egypt', office_hours: 'Mon–Fri 9–6', map_share_url: 'https://maps.google.com/?q=Cairo,Egypt', map_embed_url: 'https://www.google.com/maps?q=Cairo,Egypt&output=embed' };
     }
@@ -34,18 +39,23 @@ function AdminSettings() {
         office_location: settings.office_location || 'Cairo, Egypt',
         office_hours: settings.office_hours || 'Mon–Fri 9–6',
         map_share_url: settings.map_share_url || 'https://maps.google.com/?q=Cairo,Egypt',
-        map_embed_url: settings.map_embed_url || 'https://www.google.com/maps?q=Cairo,Egypt&output=embed'
+        map_embed_url: settings.map_embed_url || 'https://www.google.com/maps?q=Cairo,Egypt&output=embed',
+        contact_email: settings.contact_email || 'hello@sawaqly.com',
+        contact_phone: settings.contact_phone || '+20 100 000 0000',
+        social_instagram: settings.social_instagram || 'https://instagram.com',
+        social_facebook: settings.social_facebook || 'https://facebook.com',
+        social_tiktok: settings.social_tiktok || 'https://tiktok.com'
       });
     }
   }, [settings]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase.from('site_settings').update(data).eq('id', 1);
+      const { error } = await supabase.from('social_media').update(data).eq('id', 1);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['site_settings'] });
+      queryClient.invalidateQueries({ queryKey: ['social_media'] });
     },
     onError: (err: any) => {
       console.error("Save error:", err);
@@ -96,6 +106,45 @@ function AdminSettings() {
                 <p className="text-xs text-muted-foreground mt-1">Paste the standard "Share" link for the "Open in Google Maps" button.</p>
               </div>
               
+              <button 
+                onClick={handleSave} 
+                disabled={saveMutation.isPending}
+                className="glass glass-tint-blue glass-hover glass-glow w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold mt-4 disabled:opacity-50"
+              >
+                {saveMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                Save Settings
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="glass glass-strong rounded-3xl p-6 h-fit">
+          <h2 className="font-semibold mb-4 text-lg">Contact & Social Links</h2>
+          {isLoading ? (
+            <div className="p-8 flex justify-center text-brand-blue"><Loader2 className="animate-spin" size={24} /></div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Contact Email</label>
+                <input value={formData.contact_email} onChange={e => setFormData({...formData, contact_email: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="e.g. hello@sawaqly.com" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Contact Phone</label>
+                <input value={formData.contact_phone} onChange={e => setFormData({...formData, contact_phone: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="e.g. +20 100 000 0000" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Instagram URL</label>
+                <input value={formData.social_instagram} onChange={e => setFormData({...formData, social_instagram: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://instagram.com/sawaqly" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Facebook URL</label>
+                <input value={formData.social_facebook} onChange={e => setFormData({...formData, social_facebook: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://facebook.com/sawaqly" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">TikTok URL</label>
+                <input value={formData.social_tiktok} onChange={e => setFormData({...formData, social_tiktok: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://tiktok.com/@sawaqly" />
+              </div>
+
               <button 
                 onClick={handleSave} 
                 disabled={saveMutation.isPending}
