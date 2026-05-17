@@ -282,15 +282,18 @@ function Marquee() {
   ];
   const items = dbBrands.length > 0 ? dbBrands : fallbackBrands;
   
-  // Ensure we have enough items so the marquee always spans the screen and maintains speed
-  const MIN_ITEMS = 24;
-  const repeatedItems = [];
-  while (repeatedItems.length < MIN_ITEMS) {
-    repeatedItems.push(...items);
+  // Build one complete "half" by repeating items enough times to fill the screen
+  const MIN_PER_HALF = Math.max(12, items.length);
+  const halfItems: typeof items = [];
+  while (halfItems.length < MIN_PER_HALF) {
+    for (const item of items) {
+      halfItems.push(item);
+      if (halfItems.length >= MIN_PER_HALF) break;
+    }
   }
   
-  // Duplicate exactly once for the -50% CSS animation to create a seamless infinite loop
-  const row = [...repeatedItems, ...repeatedItems];
+  // Two identical halves → the -50% CSS animation loops seamlessly
+  const row = [...halfItems, ...halfItems];
 
   return (
     <section className="relative py-20 reveal">
@@ -304,7 +307,7 @@ function Marquee() {
           {row.map((b, i) => (
             <div
               key={i}
-              className="flex items-center justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300 filter brightness-0 invert"
+              className="flex-shrink-0 flex items-center justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300 filter brightness-0 invert"
             >
               {b.logo_url ? (
                 <img src={b.logo_url} alt={b.name} className="h-8 md:h-12 w-auto object-contain" />
