@@ -222,24 +222,24 @@ function Hero() {
 
         {/* Centered Content */}
         <div className="reveal relative z-20 flex flex-col items-center w-full">
-          <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.0] tracking-tight uppercase drop-shadow-xl">
+          <h1 className="text-[clamp(1.75rem,8vw,5.5rem)] font-extrabold leading-[1.0] tracking-tight uppercase drop-shadow-xl">
             <span className="block whitespace-nowrap">Brands that <span className="text-brand-blue">move</span>.</span>
             <span className="block whitespace-nowrap">Growth that <span className="text-brand-yellow">sticks</span>.</span>
           </h1>
-          <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl font-light">
+          <p className="mt-6 md:mt-8 text-sm md:text-xl text-muted-foreground max-w-2xl font-light">
             Sawaqly is a full-service marketing agency turning bold ideas into measurable
             momentum — strategy, identity, campaigns, content, and conversion.
           </p>
-          <div className="mt-10 flex flex-row flex-nowrap justify-center gap-4">
+          <div className="mt-8 md:mt-10 flex flex-row flex-nowrap justify-center gap-3 md:gap-4">
             <a
               href="#contact"
-              className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold whitespace-nowrap tracking-wide uppercase"
+              className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center justify-center gap-1.5 md:gap-2 rounded-full px-4 py-2.5 md:px-6 md:py-3.5 text-xs md:text-sm font-bold whitespace-nowrap tracking-wide uppercase"
             >
-              Start a project <ArrowRight size={16} />
+              Start a project <ArrowRight size={14} />
             </a>
             <a
               href="#services"
-              className="glass glass-hover inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-bold text-navy whitespace-nowrap tracking-wide uppercase"
+              className="glass glass-hover inline-flex items-center justify-center rounded-full px-4 py-2.5 md:px-6 md:py-3.5 text-xs md:text-sm font-bold text-navy whitespace-nowrap tracking-wide uppercase"
             >
               See our services
             </a>
