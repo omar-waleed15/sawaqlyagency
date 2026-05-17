@@ -134,7 +134,7 @@ function Header() {
   }, []);
   return (
     <header
-      className={`sticky top-4 z-40 px-4 transition-transform duration-300 ease-out ${hidden ? "-translate-y-[150%]" : "translate-y-0"}`}
+      className={`fixed top-4 left-0 right-0 z-40 px-4 transition-transform duration-300 ease-out ${hidden ? "-translate-y-[150%]" : "translate-y-0"}`}
     >
       <div
         className={`nav-shell mx-auto max-w-[88rem] glass glass-hover rounded-full px-6 md:px-8 h-14 flex items-center justify-between ${scrolled ? "scrolled" : ""}`}
@@ -197,7 +197,7 @@ function Hero() {
             "linear-gradient(180deg, color-mix(in oklab, var(--brand-blue) 15%, transparent) 0%, color-mix(in oklab, var(--brand-yellow) 8%, transparent) 65%, transparent 100%)",
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-6 pt-28 pb-20 md:pt-32 md:pb-24 flex flex-col items-center justify-center text-center min-h-[60vh]">
+      <div className="relative mx-auto max-w-7xl px-6 pt-36 pb-20 md:pt-44 md:pb-24 flex flex-col items-center justify-center text-center min-h-[60vh]">
         {/* Large Planet (Top Right, Hero Only) */}
         <div className="hidden lg:block absolute top-[5%] right-[5%] w-64 h-64 z-10 pointer-events-none opacity-90 rotate-[-20deg]" style={{ animation: "float 15s ease-in-out infinite" }}>
           {/* Planet Body */}
