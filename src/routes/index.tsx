@@ -476,7 +476,8 @@ function Contact() {
     submitMutation.mutate({
       name: data.get('name'),
       company: data.get('company') || null,
-      email: data.get('email'),
+      email: data.get('email') || null,
+      phone_number: data.get('phone_number'),
       message: data.get('message')
     });
   };
@@ -515,9 +516,10 @@ function Contact() {
         >
           <div className="grid grid-cols-2 gap-4">
             <Field label={t("contact.name")} name="name" />
-            <Field label={t("contact.company")} name="company" />
+            <Field label={t("contact.company")} name="company" required={false} />
           </div>
-          <Field label={t("contact.email")} name="email" type="email" />
+          <Field label={t("contact.phone")} name="phone_number" type="tel" />
+          <Field label={t("contact.email")} name="email" type="email" required={false} />
           <div>
             <label className="text-sm font-medium">{t("contact.brief")}</label>
             <textarea
@@ -540,7 +542,7 @@ function Contact() {
   );
 }
 
-function Field({ label, name, type = "text" }: { label: string; name: string; type?: string }) {
+function Field({ label, name, type = "text", required = true }: { label: string; name: string; type?: string; required?: boolean }) {
   return (
     <div>
       <label className="text-sm font-medium" htmlFor={name}>{label}</label>
@@ -548,7 +550,7 @@ function Field({ label, name, type = "text" }: { label: string; name: string; ty
         id={name}
         name={name}
         type={type}
-        required
+        required={required}
         className="glass-input mt-1.5 w-full rounded-xl px-3.5 py-2.5 text-sm"
       />
     </div>

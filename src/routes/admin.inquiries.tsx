@@ -160,8 +160,8 @@ function AdminInquiries() {
                 <div>
                   <h2 className="text-2xl font-bold text-navy mb-4">{selectedInquiry.name}</h2>
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2"><Mail size={14} className="text-brand-blue"/> <a href={`mailto:${selectedInquiry.email}`} className="hover:text-brand-blue transition-colors">{selectedInquiry.email}</a></div>
-                    {selectedInquiry.phone && <div className="flex items-center gap-2"><Phone size={14} className="text-brand-yellow"/> {selectedInquiry.phone}</div>}
+                    {selectedInquiry.email && <div className="flex items-center gap-2"><Mail size={14} className="text-brand-blue"/> <a href={`mailto:${selectedInquiry.email}`} className="hover:text-brand-blue transition-colors">{selectedInquiry.email}</a></div>}
+                    {selectedInquiry.phone_number && <div className="flex items-center gap-2"><Phone size={14} className="text-brand-yellow"/> <a href={`tel:${selectedInquiry.phone_number}`} className="hover:text-brand-yellow transition-colors">{selectedInquiry.phone_number}</a></div>}
                     {selectedInquiry.company && <div className="flex items-center gap-2"><Building2 size={14} className="text-brand-yellow"/> {selectedInquiry.company}</div>}
                     {selectedInquiry.type === 'career' && <div className="flex items-center gap-2"><User size={14} className="text-brand-yellow"/> {selectedInquiry.position}</div>}
                     <div className="flex items-center gap-2"><Clock size={14} /> {format(new Date(selectedInquiry.created_at), 'PPP at p')}</div>

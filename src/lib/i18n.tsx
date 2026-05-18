@@ -54,6 +54,7 @@ const translations = {
   "contact.name": { en: "Name", ar: "الاسم" },
   "contact.company": { en: "Company", ar: "الشركة" },
   "contact.email": { en: "Email", ar: "البريد الإلكتروني" },
+  "contact.phone": { en: "Phone Number", ar: "رقم الهاتف" },
   "contact.brief": { en: "Project brief", ar: "ملخص المشروع" },
   "contact.sending": { en: "Sending...", ar: "جاري الإرسال..." },
   "contact.sent": { en: "Thanks — we'll be in touch", ar: "شكراً — سنتواصل معك قريباً" },
