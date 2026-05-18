@@ -301,6 +301,7 @@ function Hero() {
 
 function Marquee() {
   const { t } = useI18n();
+  const [imagesReady, setImagesReady] = useState(false);
   const { data: dbBrands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: async () => {
@@ -310,17 +311,31 @@ function Marquee() {
     }
   });
   const items = dbBrands;
-  
-  if (items.length === 0) return null;
 
-  // Build one complete "half" by repeating items enough times to fill the screen
-  const MIN_PER_HALF = Math.max(12, items.length);
+  // Preload all unique logo images before showing the marquee
+  useEffect(() => {
+    if (items.length === 0) return;
+    setImagesReady(false);
+    const urls = items.map(b => b.logo_url).filter(Boolean) as string[];
+    if (urls.length === 0) { setImagesReady(true); return; }
+    let loaded = 0;
+    urls.forEach(url => {
+      const img = new Image();
+      img.onload = img.onerror = () => {
+        loaded++;
+        if (loaded >= urls.length) setImagesReady(true);
+      };
+      img.src = url;
+    });
+  }, [items]);
+  
+  if (items.length === 0 || !imagesReady) return null;
+
+  // Repeat the full set in order enough times to fill the screen
+  const repeats = Math.max(2, Math.ceil(12 / items.length));
   const halfItems: typeof items = [];
-  while (halfItems.length < MIN_PER_HALF) {
-    for (const item of items) {
-      halfItems.push(item);
-      if (halfItems.length >= MIN_PER_HALF) break;
-    }
+  for (let r = 0; r < repeats; r++) {
+    halfItems.push(...items);
   }
   
   // Two identical halves → the -50% CSS animation loops seamlessly
