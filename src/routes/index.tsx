@@ -338,7 +338,7 @@ function Marquee() {
           {row.map((b, i) => (
             <div
               key={i}
-              className="flex-shrink-0 flex items-center justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300 filter brightness-0 invert"
+              className="flex-shrink-0 flex items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300"
             >
               {b.logo_url ? (
                 <img src={b.logo_url} alt={b.name} className="h-8 md:h-12 w-auto object-contain" />
