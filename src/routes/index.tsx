@@ -341,7 +341,7 @@ function Marquee() {
               className="flex-shrink-0 flex items-center justify-center opacity-60 hover:opacity-100 transition-all duration-300"
             >
               {b.logo_url ? (
-                <img src={b.logo_url} alt={b.name} className="h-8 md:h-12 w-auto object-contain" />
+                <img src={b.logo_url} alt={b.name} className="h-12 md:h-20 w-auto object-contain" />
               ) : (
                 <span className="font-display font-bold tracking-widest text-white uppercase text-xl md:text-2xl">{b.name}</span>
               )}
