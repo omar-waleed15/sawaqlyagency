@@ -8,7 +8,7 @@ const translations = {
   "nav.team": { en: "Our Team", ar: "فريقنا" },
   "nav.contact": { en: "Contact Us", ar: "تواصل معنا" },
   "nav.careers": { en: "Careers", ar: "الوظائف" },
-  "nav.cta": { en: "Schedule a free meeting", ar: "احجز اجتماع مجاني" },
+  "nav.cta": { en: "Start a project", ar: "ابدأ مشروعك" },
 
   // Hero
   "hero.line1a": { en: "Brands that ", ar: "علامات تجارية " },
@@ -19,7 +19,7 @@ const translations = {
     en: "Sawaqly is a full-service marketing agency turning bold ideas into measurable momentum — strategy, identity, campaigns, content, and conversion.",
     ar: "سواقلي هي وكالة تسويق متكاملة تحوّل الأفكار الجريئة إلى نتائج قابلة للقياس — استراتيجية، هوية، حملات، محتوى، وتحويل.",
   },
-  "hero.cta1": { en: "Schedule a free meeting", ar: "احجز اجتماع مجاني" },
+  "hero.cta1": { en: "Start a project", ar: "ابدأ مشروعك" },
   "hero.cta2": { en: "See our services", ar: "شاهد خدماتنا" },
 
   // Marquee
