@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Loader2, GripHorizontal } from 'lucide-react';
+import { Plus, Trash2, Loader2, GripHorizontal, Pencil, Check, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import {
   DndContext,
@@ -25,7 +25,9 @@ export const Route = createFileRoute('/admin/team')({
   component: AdminTeam,
 });
 
-function SortableTeamItem({ member, onDelete, isDeleting }: any) {
+function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: any) {
+  const [editData, setEditData] = useState({ name: member.name, role: member.role, photo_url: member.photo_url || '' });
+  const [editing, setEditing] = useState(false);
   const {
     attributes,
     listeners,
@@ -40,6 +42,40 @@ function SortableTeamItem({ member, onDelete, isDeleting }: any) {
     transition,
     zIndex: isDragging ? 50 : 1,
   };
+
+  if (editing) {
+    return (
+      <div ref={setNodeRef} style={style} className="glass rounded-2xl p-4 space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Name</label>
+            <input value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} className="glass-input w-full rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Role</label>
+            <input value={editData.role} onChange={e => setEditData({...editData, role: e.target.value})} className="glass-input w-full rounded-lg px-3 py-2 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">Photo URL</label>
+          <input value={editData.photo_url} onChange={e => setEditData({...editData, photo_url: e.target.value})} className="glass-input w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button onClick={() => setEditing(false)} className="p-2 glass-hover rounded-xl text-muted-foreground transition-colors" title="Cancel">
+            <X size={16} />
+          </button>
+          <button
+            onClick={() => { onEdit(member.id, editData); setEditing(false); }}
+            disabled={isEditing}
+            className="p-2 glass-hover rounded-xl text-brand-blue transition-colors"
+            title="Save"
+          >
+            {isEditing ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -71,6 +107,13 @@ function SortableTeamItem({ member, onDelete, isDeleting }: any) {
       </div>
 
       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <button 
+          onClick={() => setEditing(true)} 
+          className="p-2 glass-hover rounded-xl text-brand-blue transition-colors"
+          title="Edit Member"
+        >
+          <Pencil size={16} />
+        </button>
         <button 
           onClick={() => onDelete(member.id)} 
           disabled={isDeleting}
@@ -141,6 +184,16 @@ function AdminTeam() {
     }
   });
 
+  const editMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name: string; role: string; photo_url: string } }) => {
+      const { error } = await supabase.from('team').update(data).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+    }
+  });
+
   const handleAdd = () => {
     if (!formData.name || !formData.role) return;
     addMutation.mutate(formData);
@@ -193,6 +246,8 @@ function AdminTeam() {
                       member={t} 
                       onDelete={(id: string) => deleteMutation.mutate(id)}
                       isDeleting={deleteMutation.isPending && deleteMutation.variables === t.id}
+                      onEdit={(id: string, data: any) => editMutation.mutate({ id, data })}
+                      isEditing={editMutation.isPending}
                     />
                   ))}
                 </SortableContext>

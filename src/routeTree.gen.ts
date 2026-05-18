@@ -18,6 +18,7 @@ import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
+import { Route as AdminCopyRouteImport } from './routes/admin.copy'
 import { Route as AdminBrandsRouteImport } from './routes/admin.brands'
 
 const LoginRoute = LoginRouteImport.update({
@@ -65,6 +66,11 @@ const AdminInquiriesRoute = AdminInquiriesRouteImport.update({
   path: '/inquiries',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCopyRoute = AdminCopyRouteImport.update({
+  id: '/copy',
+  path: '/copy',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBrandsRoute = AdminBrandsRouteImport.update({
   id: '/brands',
   path: '/brands',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/careers': typeof CareersRoute
   '/login': typeof LoginRoute
   '/admin/brands': typeof AdminBrandsRoute
+  '/admin/copy': typeof AdminCopyRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/careers': typeof CareersRoute
   '/login': typeof LoginRoute
   '/admin/brands': typeof AdminBrandsRoute
+  '/admin/copy': typeof AdminCopyRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/careers': typeof CareersRoute
   '/login': typeof LoginRoute
   '/admin/brands': typeof AdminBrandsRoute
+  '/admin/copy': typeof AdminCopyRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/careers'
     | '/login'
     | '/admin/brands'
+    | '/admin/copy'
     | '/admin/inquiries'
     | '/admin/services'
     | '/admin/settings'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/careers'
     | '/login'
     | '/admin/brands'
+    | '/admin/copy'
     | '/admin/inquiries'
     | '/admin/services'
     | '/admin/settings'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/careers'
     | '/login'
     | '/admin/brands'
+    | '/admin/copy'
     | '/admin/inquiries'
     | '/admin/services'
     | '/admin/settings'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInquiriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/copy': {
+      id: '/admin/copy'
+      path: '/copy'
+      fullPath: '/admin/copy'
+      preLoaderRoute: typeof AdminCopyRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/brands': {
       id: '/admin/brands'
       path: '/brands'
@@ -229,6 +248,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminBrandsRoute: typeof AdminBrandsRoute
+  AdminCopyRoute: typeof AdminCopyRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminServicesRoute: typeof AdminServicesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -238,6 +258,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBrandsRoute: AdminBrandsRoute,
+  AdminCopyRoute: AdminCopyRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
   AdminServicesRoute: AdminServicesRoute,
   AdminSettingsRoute: AdminSettingsRoute,

@@ -20,7 +20,9 @@ function AdminSettings() {
     contact_phone: '',
     social_instagram: '',
     social_facebook: '',
-    social_tiktok: ''
+    social_tiktok: '',
+    footer_location_title: '',
+    footer_location_description: ''
   });
 
   const { data: settings, isLoading } = useQuery({
@@ -44,7 +46,9 @@ function AdminSettings() {
         contact_phone: settings.contact_phone || '+20 100 000 0000',
         social_instagram: settings.social_instagram || 'https://instagram.com',
         social_facebook: settings.social_facebook || 'https://facebook.com',
-        social_tiktok: settings.social_tiktok || 'https://tiktok.com'
+        social_tiktok: settings.social_tiktok || 'https://tiktok.com',
+        footer_location_title: settings.footer_location_title || '',
+        footer_location_description: settings.footer_location_description || ''
       });
     }
   }, [settings]);
@@ -145,6 +149,33 @@ function AdminSettings() {
                 <input value={formData.social_tiktok} onChange={e => setFormData({...formData, social_tiktok: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://tiktok.com/@sawaqly" />
               </div>
 
+              <button 
+                onClick={handleSave} 
+                disabled={saveMutation.isPending}
+                className="glass glass-tint-blue glass-hover glass-glow w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold mt-4 disabled:opacity-50"
+              >
+                {saveMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                Save Settings
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="glass glass-strong rounded-3xl p-6 h-fit lg:col-span-2">
+          <h2 className="font-semibold mb-4 text-lg">Footer Location</h2>
+          {isLoading ? (
+            <div className="p-8 flex justify-center text-brand-blue"><Loader2 className="animate-spin" size={24} /></div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Location Title</label>
+                <input value={formData.footer_location_title} onChange={e => setFormData({...formData, footer_location_title: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="e.g. Sawaqly HQ — Cairo" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Location Description</label>
+                <textarea value={formData.footer_location_description} onChange={e => setFormData({...formData, footer_location_description: e.target.value})} rows={3} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="e.g. 5th Settlement, New Cairo&#10;Building 12, Floor 3&#10;Open Mon–Fri 9AM–6PM" />
+                <p className="text-xs text-muted-foreground mt-1">Use new lines to separate address details. This appears in the footer only.</p>
+              </div>
               <button 
                 onClick={handleSave} 
                 disabled={saveMutation.isPending}

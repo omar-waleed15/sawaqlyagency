@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
+import { useI18n } from "../lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -61,11 +62,29 @@ function useReveal() {
   }, []);
 }
 
+function useCopy() {
+  const { lang } = useI18n();
+  const { data } = useQuery({
+    queryKey: ['website_copy'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('website_copy').select('*').eq('id', 1).single();
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    }
+  });
+  const c = (enField: string, arField: string, fallback: string) => {
+    if (!data) return fallback;
+    const val = lang === 'ar' ? (data as any)[arField] : (data as any)[enField];
+    return val || fallback;
+  };
+  return c;
+}
+
 function Index() {
   useReveal();
+  const { lang } = useI18n();
   return (
-    <div className="relative min-h-screen text-foreground overflow-x-hidden">
-      <div className="ambient-bg" aria-hidden>
+    <div className="relative min-h-screen text-foreground overflow-x-hidden" dir={lang === "ar" ? "rtl" : "ltr"}>      <div className="ambient-bg" aria-hidden>
         <div className="ambient-orb" style={{ width: 380, height: 380, top: "30%", left: "40%", background: "radial-gradient(circle, color-mix(in oklab, var(--brand-blue) 45%, transparent), transparent 70%)" }} />
         
         {/* Deep Space Elements: Moons, Planets, Universes, Stars */}
@@ -116,6 +135,7 @@ function Header() {
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const lastY = useRef(0);
+  const { lang, setLang, t } = useI18n();
   useEffect(() => {
     lastY.current = window.scrollY;
     const onScroll = () => {
@@ -144,41 +164,57 @@ function Header() {
           <span>SAWAQLY</span>
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm">
-          <a href="#services" className="hover:text-brand-blue transition">Our Services</a>
-          <a href="#team" className="hover:text-brand-blue transition">Our Team</a>
-          <a href="#contact" className="hover:text-brand-blue transition">Contact Us</a>
-          <Link to="/careers" className="hover:text-brand-blue transition">Careers</Link>
+          <a href="#services" className="hover:text-brand-blue transition">{t("nav.services")}</a>
+          <a href="#team" className="hover:text-brand-blue transition">{t("nav.team")}</a>
+          <a href="#contact" className="hover:text-brand-blue transition">{t("nav.contact")}</a>
+          <Link to="/careers" className="hover:text-brand-blue transition">{t("nav.careers")}</Link>
         </nav>
-        <a
-          href="#contact"
-          className="hidden md:inline-flex glass glass-tint-blue glass-hover glass-glow items-center gap-1.5 rounded-full px-5 py-2 text-sm font-medium"
-        >
-          Start a project <ArrowRight size={14} />
-        </a>
-        <button
-          type="button"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className="md:hidden glass glass-hover rounded-full p-2 text-navy"
-        >
-          {open ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={() => setLang(lang === "en" ? "ar" : "en")}
+            className="glass glass-hover rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide uppercase"
+          >
+            {lang === "en" ? "عربي" : "EN"}
+          </button>
+          <a
+            href="#contact"
+            className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm font-medium"
+          >
+            {t("nav.cta")} <ArrowRight size={14} />
+          </a>
+        </div>
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={() => setLang(lang === "en" ? "ar" : "en")}
+            className="glass glass-hover rounded-full px-3 py-1.5 text-xs font-bold tracking-wide uppercase"
+          >
+            {lang === "en" ? "عربي" : "EN"}
+          </button>
+          <button
+            type="button"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className="glass glass-hover rounded-full p-2 text-navy"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
       <div
         className={`md:hidden mx-auto max-w-[88rem] overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-96 opacity-100 mt-2 pointer-events-auto" : "max-h-0 opacity-0 mt-0 pointer-events-none"}`}
       >
         <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
-          <a onClick={() => setOpen(false)} href="#services" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">Our Services</a>
-          <a onClick={() => setOpen(false)} href="#team" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">Our Team</a>
-          <a onClick={() => setOpen(false)} href="#contact" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">Contact Us</a>
-          <Link onClick={() => setOpen(false)} to="/careers" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">Careers</Link>
+          <a onClick={() => setOpen(false)} href="#services" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.services")}</a>
+          <a onClick={() => setOpen(false)} href="#team" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.team")}</a>
+          <a onClick={() => setOpen(false)} href="#contact" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.contact")}</a>
+          <Link onClick={() => setOpen(false)} to="/careers" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.careers")}</Link>
           <a
             onClick={() => setOpen(false)}
             href="#contact"
             className="glass glass-tint-blue glass-hover glass-glow mt-2 inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-3 text-sm font-semibold"
           >
-            Start a project <ArrowRight size={14} />
+            {t("nav.cta")} <ArrowRight size={14} />
           </a>
         </div>
       </div>
@@ -187,6 +223,8 @@ function Header() {
 }
 
 function Hero() {
+  const { t } = useI18n();
+  const c = useCopy();
   return (
     <section id="top" className="relative isolate">
       <div
@@ -223,25 +261,24 @@ function Hero() {
         {/* Centered Content */}
         <div className="reveal relative z-20 flex flex-col items-center w-full">
           <h1 className="text-[clamp(1.75rem,8vw,5.5rem)] font-extrabold leading-[1.0] tracking-tight uppercase drop-shadow-xl">
-            <span className="block whitespace-nowrap">Brands that <span className="text-brand-blue">move</span>.</span>
-            <span className="block whitespace-nowrap">Growth that <span className="text-brand-yellow">sticks</span>.</span>
+            <span className="block whitespace-nowrap">{t("hero.line1a")}<span className="text-brand-blue">{t("hero.line1b")}</span>.</span>
+            <span className="block whitespace-nowrap">{t("hero.line2a")}<span className="text-brand-yellow">{t("hero.line2b")}</span>.</span>
           </h1>
           <p className="mt-6 md:mt-8 text-sm md:text-xl text-muted-foreground max-w-2xl font-light">
-            Sawaqly is a full-service marketing agency turning bold ideas into measurable
-            momentum — strategy, identity, campaigns, content, and conversion.
+            {c('hero_sub_en', 'hero_sub_ar', t("hero.sub"))}
           </p>
           <div className="mt-8 md:mt-10 flex flex-row flex-nowrap justify-center gap-3 md:gap-4">
             <a
               href="#contact"
               className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center justify-center gap-1.5 md:gap-2 rounded-full px-4 py-2.5 md:px-6 md:py-3.5 text-xs md:text-sm font-bold whitespace-nowrap tracking-wide uppercase"
             >
-              Start a project <ArrowRight size={14} />
+              {t("hero.cta1")} <ArrowRight size={14} />
             </a>
             <a
               href="#services"
               className="glass glass-hover inline-flex items-center justify-center rounded-full px-4 py-2.5 md:px-6 md:py-3.5 text-xs md:text-sm font-bold text-navy whitespace-nowrap tracking-wide uppercase"
             >
-              See our services
+              {t("hero.cta2")}
             </a>
           </div>
         </div>
@@ -263,6 +300,7 @@ function Hero() {
 }
 
 function Marquee() {
+  const { t } = useI18n();
   const { data: dbBrands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: async () => {
@@ -271,17 +309,10 @@ function Marquee() {
       return data;
     }
   });
+  const items = dbBrands;
   
-  const fallbackBrands = [
-    { name: "Google", logo_url: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" },
-    { name: "Amazon", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
-    { name: "Netflix", logo_url: "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" },
-    { name: "Apple", logo_url: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" },
-    { name: "Spotify", logo_url: "https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" },
-    { name: "Meta", logo_url: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" },
-  ];
-  const items = dbBrands.length > 0 ? dbBrands : fallbackBrands;
-  
+  if (items.length === 0) return null;
+
   // Build one complete "half" by repeating items enough times to fill the screen
   const MIN_PER_HALF = Math.max(12, items.length);
   const halfItems: typeof items = [];
@@ -296,9 +327,9 @@ function Marquee() {
   const row = [...halfItems, ...halfItems];
 
   return (
-    <section className="relative py-20 reveal">
+    <section className="relative py-20 reveal" dir="ltr">
       <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-10">
-        Trusted by teams shipping bold work
+        {t("marquee.label")}
       </p>
       <div className="relative overflow-x-hidden">
         <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
@@ -324,6 +355,8 @@ function Marquee() {
 
 
 function Services() {
+  const { t } = useI18n();
+  const c = useCopy();
   const { data: dbServices = [] } = useQuery({
     queryKey: ['services'],
     queryFn: async () => {
@@ -333,25 +366,19 @@ function Services() {
     }
   });
 
-  const fallbackServices = [
-    { icon_name: "Megaphone", title: "Brand Strategy", description: "Positioning, narrative, and identity systems that command attention." },
-    { icon_name: "Search", title: "SEO & Content", description: "Rank, retain, and convert with content engineered for intent." },
-    { icon_name: "Share2", title: "Social Media", description: "Always-on social that turns scrollers into community." }
-  ];
-  
-  const displayServices = dbServices.length > 0 ? dbServices : fallbackServices;
+  if (dbServices.length === 0) return null;
 
   return (
     <section id="services" className="relative">
       <div className="mx-auto max-w-7xl px-6 py-14 md:py-18">
         <div className="mb-14 text-center">
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">What We Are Doing?</h2>
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">{c('services_title_en', 'services_title_ar', t("services.title"))}</h2>
           <p className="mt-4 text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-            We combine creative strategy with data-driven execution to build brands that stand out and scale faster.
+            {c('services_sub_en', 'services_sub_ar', t("services.sub"))}
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayServices.map(({ icon_name, title, description }, i) => {
+          {dbServices.map(({ icon_name, title, description }, i) => {
             const Icon = (Icons as any)[icon_name] || Icons.HelpCircle;
             return (
               <div
@@ -374,6 +401,7 @@ function Services() {
 
 
 function Team() {
+  const { t } = useI18n();
   const { data: dbTeam = [] } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
@@ -383,26 +411,19 @@ function Team() {
     }
   });
 
-  const fallbackTeam = [
-    { name: "Layla Hassan", role: "Founder & Creative Director", photo_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=500" },
-    { name: "Omar El-Sayed", role: "Head of Strategy", photo_url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400&h=500" },
-    { name: "Mariam Adel", role: "Design Lead", photo_url: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400&h=500" },
-    { name: "Youssef Nabil", role: "Performance Marketing Lead", photo_url: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400&h=500" },
-  ];
-  
-  const displayTeam = dbTeam.length > 0 ? dbTeam : fallbackTeam;
+  if (dbTeam.length === 0) return null;
 
   return (
     <section id="team" className="relative">
       <div className="mx-auto max-w-7xl px-6 py-28 md:py-36">
         <div className="mb-14 text-center">
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Meet the people behind the work.</h2>
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">{t("team.title")}</h2>
           <p className="mt-4 text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-            Our team of strategists, designers, and engineers work seamlessly together to bring your boldest ideas to life.
+            {t("team.sub")}
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayTeam.map((m: any, i: number) => (
+          {dbTeam.map((m: any, i: number) => (
             <div
               key={m.name}
               className="group glass glass-hover rounded-3xl p-6 reveal in"
@@ -426,6 +447,8 @@ function Team() {
 }
 
 function Contact() {
+  const { t } = useI18n();
+  const c = useCopy();
   const [sent, setSent] = useState(false);
   
   const { data: settings } = useQuery({
@@ -462,10 +485,9 @@ function Contact() {
     <section id="contact" className="mx-auto max-w-7xl px-6 py-14 md:py-18">
       <div className="grid md:grid-cols-2 gap-14">
         <div className="reveal in">
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">Let's build something worth talking about.</h2>
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">{c('contact_title_en', 'contact_title_ar', t("contact.title"))}</h2>
           <p className="mt-5 text-lg text-muted-foreground max-w-md font-light">
-            Tell us about your brand, your goals, and where you're stuck. We'll come back
-            within one business day.
+            {c('contact_sub_en', 'contact_sub_ar', t("contact.sub"))}
           </p>
           <div className="mt-8 space-y-3 text-sm">
             <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3"><Mail size={16} className="text-brand-blue" /> {settings?.contact_email || 'hello@sawaqly.com'}</div>
@@ -492,12 +514,12 @@ function Contact() {
           className="glass glass-strong rounded-3xl p-8 space-y-4 reveal in"
         >
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Name" name="name" />
-            <Field label="Company" name="company" />
+            <Field label={t("contact.name")} name="name" />
+            <Field label={t("contact.company")} name="company" />
           </div>
-          <Field label="Email" name="email" type="email" />
+          <Field label={t("contact.email")} name="email" type="email" />
           <div>
-            <label className="text-sm font-medium">Project brief</label>
+            <label className="text-sm font-medium">{t("contact.brief")}</label>
             <textarea
               name="message"
               required
@@ -510,7 +532,7 @@ function Contact() {
             disabled={submitMutation.isPending || sent}
             className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitMutation.isPending ? "Sending..." : sent ? "Thanks — we'll be in touch" : <><Icons.Send size={16} /> Send message</>}
+            {submitMutation.isPending ? t("contact.sending") : sent ? t("contact.sent") : <><Icons.Send size={16} /> {t("contact.send")}</>}
           </button>
         </form>
       </div>
@@ -534,6 +556,7 @@ function Field({ label, name, type = "text" }: { label: string; name: string; ty
 }
 
 function LocationMap() {
+  const { t } = useI18n();
   const { data: settings } = useQuery({
     queryKey: ['social_media'],
     queryFn: async () => {
@@ -551,7 +574,7 @@ function LocationMap() {
       <div className="mx-auto max-w-7xl px-6 py-12 reveal">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
-            <h2 className="mt-3 text-3xl md:text-4xl font-bold">Come say hi.</h2>
+            <h2 className="mt-3 text-3xl md:text-4xl font-bold">{t("map.title")}</h2>
           </div>
           <a
             href={mapLink}
@@ -559,7 +582,7 @@ function LocationMap() {
             rel="noreferrer"
             className="glass glass-hover rounded-full px-5 py-2.5 text-sm font-semibold text-brand-blue inline-flex items-center gap-1.5"
           >
-            Open in Google Maps <ArrowRight size={14} />
+            {t("map.open")} <ArrowRight size={14} />
           </a>
         </div>
         <div className="glass rounded-3xl p-2 overflow-hidden">
@@ -576,7 +599,7 @@ function LocationMap() {
           </div>
           <div className="px-4 py-5 md:py-6 text-center md:text-left flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.2em] text-brand-blue font-semibold mb-1">Studio</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-brand-blue font-semibold mb-1">{t("map.studio")}</div>
               <div className="text-lg text-navy font-bold">{settings?.office_name || 'Sawaqly HQ'}</div>
             </div>
             <div className="text-sm text-muted-foreground font-light md:text-right">
@@ -591,6 +614,8 @@ function LocationMap() {
 }
 
 function Footer() {
+  const { t } = useI18n();
+  const c = useCopy();
   const { data: settings } = useQuery({
     queryKey: ['social_media'],
     queryFn: async () => {
@@ -602,36 +627,45 @@ function Footer() {
 
   return (
     <footer className="px-4 pb-6">
-      <div className="mx-auto max-w-7xl glass rounded-3xl px-8 py-10 grid md:grid-cols-3 gap-8 items-start">
+      <div className="mx-auto max-w-7xl glass rounded-3xl px-8 py-10 grid md:grid-cols-4 gap-8 items-start">
         <div>
           <div className="flex items-center gap-2 font-display font-bold text-lg">
             <img src="/SAWAQLYLOGO1.png" alt="Sawaqly" className="h-9 w-auto object-contain" />
             <span>SAWAQLY</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground max-w-xs font-light">
-            Marketing agency building brands that move and growth that sticks.
+            {c('footer_tagline_en', 'footer_tagline_ar', t("footer.tagline"))}
           </p>
         </div>
         <div className="text-sm">
-          <div className="font-semibold mb-3">Studio</div>
+          <div className="font-semibold mb-3">{t("footer.studio")}</div>
           <ul className="space-y-2 text-muted-foreground">
-            <li><a href="#services" className="hover:text-brand-blue">Our Services</a></li>
-            <li><a href="#team" className="hover:text-brand-blue">Our Team</a></li>
-            <li><a href="#contact" className="hover:text-brand-blue">Contact Us</a></li>
-            <li><Link to="/careers" className="hover:text-brand-blue">Careers</Link></li>
+            <li><a href="#services" className="hover:text-brand-blue">{t("nav.services")}</a></li>
+            <li><a href="#team" className="hover:text-brand-blue">{t("nav.team")}</a></li>
+            <li><a href="#contact" className="hover:text-brand-blue">{t("nav.contact")}</a></li>
+            <li><Link to="/careers" className="hover:text-brand-blue">{t("nav.careers")}</Link></li>
           </ul>
         </div>
         <div className="text-sm">
-          <div className="font-semibold mb-3">Reach us</div>
+          <div className="font-semibold mb-3">{t("footer.reach")}</div>
           <ul className="space-y-2 text-muted-foreground">
             <li>{settings?.contact_email || 'hello@sawaqly.com'}</li>
             <li>{settings?.contact_phone || '+20 100 000 0000'}</li>
             <li>{settings?.office_location || 'Cairo, Egypt'}</li>
           </ul>
         </div>
+        <div className="text-sm">
+          <div className="font-semibold mb-3">{t("footer.location")}</div>
+          {settings?.footer_location_title && (
+            <div className="text-navy font-medium mb-2">{settings.footer_location_title}</div>
+          )}
+          {settings?.footer_location_description && (
+            <p className="text-muted-foreground font-light leading-relaxed whitespace-pre-line">{settings.footer_location_description}</p>
+          )}
+        </div>
       </div>
       <div className="mx-auto max-w-7xl pt-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Sawaqly Marketing Agency. All rights reserved.
+        {t("footer.copy")}
       </div>
     </footer>
   );

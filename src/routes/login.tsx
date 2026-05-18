@@ -31,7 +31,10 @@ function Login() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.navigate({ to: '/admin' });
+      // Wait a tick for Supabase to persist the session before navigating
+      await new Promise((r) => setTimeout(r, 100));
+      await router.invalidate();
+      router.navigate({ to: '/admin/inquiries' });
     }
   };
 
