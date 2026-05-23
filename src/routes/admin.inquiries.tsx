@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash2, Loader2, CheckCircle2, Circle, Mail, MailOpen, Clock, Building2, User, Reply, Inbox, Phone, FileText } from 'lucide-react';
+import { Trash2, Loader2, CheckCircle2, Circle, Mail, MailOpen, Clock, Building2, User, Reply, Inbox, Phone, FileText, Globe, Instagram, Facebook, Target } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -163,6 +163,10 @@ function AdminInquiries() {
                     {selectedInquiry.email && <div className="flex items-center gap-2"><Mail size={14} className="text-brand-blue"/> <a href={`mailto:${selectedInquiry.email}`} className="hover:text-brand-blue transition-colors">{selectedInquiry.email}</a></div>}
                     {selectedInquiry.phone_number && <div className="flex items-center gap-2"><Phone size={14} className="text-brand-yellow"/> <a href={`tel:${selectedInquiry.phone_number}`} className="hover:text-brand-yellow transition-colors">{selectedInquiry.phone_number}</a></div>}
                     {selectedInquiry.company && <div className="flex items-center gap-2"><Building2 size={14} className="text-brand-yellow"/> {selectedInquiry.company}</div>}
+                    {selectedInquiry.instagram_url && <div className="flex items-center gap-2"><Instagram size={14} className="text-brand-yellow"/> <a href={selectedInquiry.instagram_url} target="_blank" rel="noreferrer" className="hover:text-brand-yellow transition-colors">Instagram</a></div>}
+                    {selectedInquiry.facebook_url && <div className="flex items-center gap-2"><Facebook size={14} className="text-brand-blue"/> <a href={selectedInquiry.facebook_url} target="_blank" rel="noreferrer" className="hover:text-brand-blue transition-colors">Facebook</a></div>}
+                    {selectedInquiry.website_url && <div className="flex items-center gap-2"><Globe size={14} className="text-brand-yellow"/> <a href={selectedInquiry.website_url} target="_blank" rel="noreferrer" className="hover:text-brand-yellow transition-colors">Website</a></div>}
+                    {selectedInquiry.campaign_goal && <div className="flex items-center gap-2 capitalize"><Target size={14} className="text-brand-yellow"/> Goal: {selectedInquiry.campaign_goal}</div>}
                     {selectedInquiry.type === 'career' && <div className="flex items-center gap-2"><User size={14} className="text-brand-yellow"/> {selectedInquiry.position}</div>}
                     <div className="flex items-center gap-2"><Clock size={14} /> {format(new Date(selectedInquiry.created_at), 'PPP at p')}</div>
                   </div>

@@ -163,13 +163,14 @@ function Header() {
           <img src="/SAWAQLYLOGO1.png" alt="Sawaqly" className="h-7 w-auto object-contain" />
           <span>SAWAQLY</span>
         </a>
-        <nav className="hidden md:flex items-center gap-8 text-sm">
+        <nav className="hidden lg:flex items-center gap-8 text-sm">
           <a href="#services" className="hover:text-brand-blue transition">{t("nav.services")}</a>
+          <Link to="/projects" className="hover:text-brand-blue transition">{t("nav.projects")}</Link>
           <a href="#team" className="hover:text-brand-blue transition">{t("nav.team")}</a>
           <a href="#contact" className="hover:text-brand-blue transition">{t("nav.contact")}</a>
           <Link to="/careers" className="hover:text-brand-blue transition">{t("nav.careers")}</Link>
         </nav>
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <button
             onClick={() => setLang(lang === "en" ? "ar" : "en")}
             className="glass glass-hover rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide uppercase"
@@ -183,7 +184,7 @@ function Header() {
             {t("nav.cta")} <ArrowRight size={14} />
           </a>
         </div>
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex lg:hidden items-center gap-2">
           <button
             onClick={() => setLang(lang === "en" ? "ar" : "en")}
             className="glass glass-hover rounded-full px-3 py-1.5 text-xs font-bold tracking-wide uppercase"
@@ -202,10 +203,11 @@ function Header() {
         </div>
       </div>
       <div
-        className={`md:hidden mx-auto max-w-[88rem] overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-96 opacity-100 mt-2 pointer-events-auto" : "max-h-0 opacity-0 mt-0 pointer-events-none"}`}
+        className={`lg:hidden mx-auto max-w-[88rem] overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-96 opacity-100 mt-2 pointer-events-auto" : "max-h-0 opacity-0 mt-0 pointer-events-none"}`}
       >
         <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
           <a onClick={() => setOpen(false)} href="#services" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.services")}</a>
+          <Link onClick={() => setOpen(false)} to="/projects" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.projects")}</Link>
           <a onClick={() => setOpen(false)} href="#team" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.team")}</a>
           <a onClick={() => setOpen(false)} href="#contact" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.contact")}</a>
           <Link onClick={() => setOpen(false)} to="/careers" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.careers")}</Link>
@@ -370,7 +372,7 @@ function Marquee() {
 
 
 function Services() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const c = useCopy();
   const { data: dbServices = [] } = useQuery({
     queryKey: ['services'],
@@ -392,19 +394,32 @@ function Services() {
             {c('services_sub_en', 'services_sub_ar', t("services.sub"))}
           </p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dbServices.map(({ icon_name, title, description }, i) => {
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6">
+          {dbServices.map((service, i) => {
+            const { icon_name, title, description, title_ar, description_ar } = service;
+            const displayTitle = lang === 'ar' && title_ar ? title_ar : title;
+            const displayDesc = lang === 'ar' && description_ar ? description_ar : description;
             const Icon = (Icons as any)[icon_name] || Icons.HelpCircle;
             return (
               <div
                 key={title}
-                className="group glass glass-hover rounded-3xl p-7 reveal in"
+                className="group glass glass-hover rounded-3xl p-7 reveal in flex flex-col h-full"
                 style={{ transitionDelay: `${(i % 3) * 60}ms` }}
               >
-                <Icon size={28} className="mb-5 text-brand-blue" />
-                <h3 className="text-xl font-bold text-navy">{title}</h3>
-                <p className="mt-2 text-muted-foreground text-sm leading-relaxed font-light">{description}</p>
-                <div className="mt-5 h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
+                <Icon size={28} className="mb-5 text-brand-blue shrink-0" />
+                <h3 className="text-xl font-bold text-navy shrink-0">{displayTitle}</h3>
+                <p className="mt-2 text-muted-foreground text-sm leading-relaxed font-light">{displayDesc}</p>
+                <div className="mt-auto pt-6 shrink-0 flex items-center justify-between">
+                  <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
+                  <Link
+                    to="/projects"
+                    search={{ service: service.id }}
+                    className="w-10 h-10 rounded-full glass glass-tint-blue flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-brand-blue/20"
+                    aria-label="See Projects"
+                  >
+                    <Icons.ArrowRight size={18} />
+                  </Link>
+                </div>
               </div>
             );
           })}
@@ -493,6 +508,10 @@ function Contact() {
       company: data.get('company') || null,
       email: data.get('email') || null,
       phone_number: data.get('phone_number'),
+      instagram_url: data.get('instagram_url') || null,
+      facebook_url: data.get('facebook_url') || null,
+      website_url: data.get('website_url') || null,
+      campaign_goal: data.get('campaign_goal') || null,
       message: data.get('message')
     });
   };
@@ -533,8 +552,24 @@ function Contact() {
             <Field label={t("contact.name")} name="name" />
             <Field label={t("contact.company")} name="company" required={false} />
           </div>
-          <Field label={t("contact.phone")} name="phone_number" type="tel" />
-          <Field label={t("contact.email")} name="email" type="email" required={false} />
+          <div className="grid grid-cols-2 gap-4">
+            <Field label={t("contact.phone")} name="phone_number" type="tel" />
+            <Field label={t("contact.email")} name="email" type="email" required={false} />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <Field label="Instagram URL" name="instagram_url" type="url" required={false} />
+            <Field label="Facebook URL" name="facebook_url" type="url" required={false} />
+            <Field label="Website URL" name="website_url" type="url" required={false} />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Campaign Goal</label>
+            <select name="campaign_goal" className="glass-input mt-1.5 w-full rounded-xl px-3.5 py-2.5 text-sm" required={false}>
+              <option value="" className="bg-black text-white">Select a goal...</option>
+              <option value="engagement" className="bg-black text-white">Engagement</option>
+              <option value="sales" className="bg-black text-white">Sales</option>
+              <option value="awareness" className="bg-black text-white">Awareness</option>
+            </select>
+          </div>
           <div>
             <label className="text-sm font-medium">{t("contact.brief")}</label>
             <textarea
@@ -630,7 +665,7 @@ function LocationMap() {
   );
 }
 
-function Footer() {
+export function Footer() {
   const { t } = useI18n();
   const c = useCopy();
   const { data: settings } = useQuery({

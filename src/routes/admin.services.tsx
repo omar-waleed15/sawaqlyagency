@@ -86,7 +86,7 @@ function SortableServiceItem({ service, onEdit, onDelete, isEditing, isDeleting 
 
 function AdminServices() {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({ title: '', description: '', icon_name: '' });
+  const [formData, setFormData] = useState({ title: '', title_ar: '', description: '', description_ar: '', icon_name: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
 
@@ -156,7 +156,7 @@ function AdminServices() {
   });
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', icon_name: '' });
+    setFormData({ title: '', title_ar: '', description: '', description_ar: '', icon_name: '' });
     setEditingId(null);
   };
 
@@ -171,7 +171,7 @@ function AdminServices() {
 
   const handleEditClick = (service: any) => {
     setEditingId(service.id);
-    setFormData({ title: service.title, description: service.description, icon_name: service.icon_name });
+    setFormData({ title: service.title, title_ar: service.title_ar || '', description: service.description, description_ar: service.description_ar || '', icon_name: service.icon_name });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -246,12 +246,20 @@ function AdminServices() {
           
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Title</label>
+              <label className="text-sm font-medium mb-1.5 block">Title (EN)</label>
               <input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="e.g. Web Design" />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Description</label>
+              <label className="text-sm font-medium mb-1.5 block">Title (AR)</label>
+              <input value={formData.title_ar} onChange={e => setFormData({...formData, title_ar: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm text-right" dir="rtl" placeholder="مثال: تصميم مواقع" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Description (EN)</label>
               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" rows={3} placeholder="Brief description..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Description (AR)</label>
+              <textarea value={formData.description_ar} onChange={e => setFormData({...formData, description_ar: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm text-right" dir="rtl" rows={3} placeholder="وصف موجز..." />
             </div>
             <div className="relative">
               <label className="text-sm font-medium mb-1.5 block">Icon Library</label>

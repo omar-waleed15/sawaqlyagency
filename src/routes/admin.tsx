@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, Outlet, Link, useRouter } from '@tanstack/react-router';
 import { supabase } from '../lib/supabase';
-import { LayoutDashboard, Users, Briefcase, Tag, LogOut, Mail, Settings, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Briefcase, Tag, LogOut, Mail, Settings, FileText, Layers } from 'lucide-react';
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -43,6 +43,13 @@ function AdminLayout() {
             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-sm text-muted-foreground hover:text-foreground"
           >
             <Briefcase size={18} /> Services
+          </Link>
+          <Link 
+            to="/admin/projects"
+            activeProps={{ className: 'bg-brand-blue/10 text-brand-blue font-medium' }}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-sm text-muted-foreground hover:text-foreground"
+          >
+            <Layers size={18} /> Projects
           </Link>
           <Link 
             to="/admin/team"

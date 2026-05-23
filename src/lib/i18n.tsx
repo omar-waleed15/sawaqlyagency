@@ -5,6 +5,7 @@ export type Lang = "en" | "ar";
 const translations = {
   // Nav
   "nav.services": { en: "Our Services", ar: "خدماتنا" },
+  "nav.projects": { en: "Our Projects", ar: "مشاريعنا" },
   "nav.team": { en: "Our Team", ar: "فريقنا" },
   "nav.contact": { en: "Contact Us", ar: "تواصل معنا" },
   "nav.careers": { en: "Careers", ar: "الوظائف" },

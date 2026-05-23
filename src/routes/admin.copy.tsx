@@ -23,6 +23,10 @@ function AdminCopy() {
     contact_sub_ar: '',
     footer_tagline_en: '',
     footer_tagline_ar: '',
+    projects_title_en: '',
+    projects_title_ar: '',
+    projects_sub_en: '',
+    projects_sub_ar: '',
   });
 
   const { data: copy, isLoading } = useQuery({
@@ -49,6 +53,10 @@ function AdminCopy() {
         contact_sub_ar: copy.contact_sub_ar || '',
         footer_tagline_en: copy.footer_tagline_en || '',
         footer_tagline_ar: copy.footer_tagline_ar || '',
+        projects_title_en: copy.projects_title_en || '',
+        projects_title_ar: copy.projects_title_ar || '',
+        projects_sub_en: copy.projects_sub_en || '',
+        projects_sub_ar: copy.projects_sub_ar || '',
       });
     }
   }, [copy]);
@@ -140,6 +148,18 @@ function AdminCopy() {
               <Field label="Headline (Arabic)" field="contact_title_ar" />
               <Field label="Sub-headline (English)" field="contact_sub_en" textarea />
               <Field label="Sub-headline (Arabic)" field="contact_sub_ar" textarea />
+              <SaveBtn />
+            </div>
+          </div>
+
+          {/* Projects Section */}
+          <div className="glass glass-strong rounded-3xl p-6 h-fit">
+            <h2 className="font-semibold mb-4 text-lg">Projects Section</h2>
+            <div className="space-y-4">
+              <Field label="Headline (English)" field="projects_title_en" />
+              <Field label="Headline (Arabic)" field="projects_title_ar" />
+              <Field label="Sub-headline (English)" field="projects_sub_en" textarea />
+              <Field label="Sub-headline (Arabic)" field="projects_sub_ar" textarea />
               <SaveBtn />
             </div>
           </div>
