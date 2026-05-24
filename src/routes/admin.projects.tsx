@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Loader2, GripVertical, Edit2, Check, X as XIcon, Image } from 'lucide-react';
+import { Plus, Trash2, Loader2, GripVertical, Edit2, Check, X as XIcon, Image, ArrowUp, ArrowDown, Type, Video, LayoutList } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import {
   DndContext,
@@ -67,7 +67,8 @@ function AdminProjects() {
   const queryClient = useQueryClient();
 
   // ── Project state ──
-  const emptyProject = { title_en: '', title_ar: '', description_en: '', description_ar: '', image_url: '', link_url: '', service_id: '' };
+  type Block = { id: string; type: 'text' | 'image' | 'video'; text_en?: string; text_ar?: string; url?: string; aspect?: 'auto' | '16/9' | '9/16' | '1/1' | '4/3'; };
+  const emptyProject = { title_en: '', title_ar: '', description_en: '', description_ar: '', image_url: '', link_url: '', service_id: '', content_blocks: [] as Block[] };
   const [projForm, setProjForm] = useState(emptyProject);
   const [editingProjId, setEditingProjId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
@@ -146,6 +147,38 @@ function AdminProjects() {
       description_en: proj.description_en || '', description_ar: proj.description_ar || '',
       image_url: proj.image_url || '', link_url: proj.link_url || '',
       service_id: proj.service_id || '',
+      content_blocks: proj.content_blocks || [],
+    });
+  };
+
+  // ── Block Handlers ──
+  const addBlock = (type: Block['type']) => {
+    setProjForm(prev => ({
+      ...prev,
+      content_blocks: [...prev.content_blocks, { id: Math.random().toString(36).substring(2, 9), type, text_en: '', text_ar: '', url: '', aspect: type === 'video' ? '16/9' : undefined }]
+    }));
+  };
+  const updateBlock = (id: string, updates: Partial<Block>) => {
+    setProjForm(prev => ({
+      ...prev,
+      content_blocks: prev.content_blocks.map(b => b.id === id ? { ...b, ...updates } : b)
+    }));
+  };
+  const removeBlock = (id: string) => {
+    setProjForm(prev => ({
+      ...prev,
+      content_blocks: prev.content_blocks.filter(b => b.id !== id)
+    }));
+  };
+  const moveBlock = (index: number, direction: 'up' | 'down') => {
+    setProjForm(prev => {
+      const blocks = [...prev.content_blocks];
+      if (direction === 'up' && index > 0) {
+        [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
+      } else if (direction === 'down' && index < blocks.length - 1) {
+        [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
+      }
+      return { ...prev, content_blocks: blocks };
     });
   };
 
@@ -178,8 +211,8 @@ function AdminProjects() {
       </div>
 
       {/* ── PROJECTS SECTION ── */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 glass glass-strong rounded-3xl p-6">
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="glass glass-strong rounded-3xl p-6">
           <div className="flex items-start justify-between mb-4 gap-4 flex-wrap">
             <h2 className="font-semibold text-lg shrink-0">
               {selectedServiceId
@@ -233,7 +266,7 @@ function AdminProjects() {
         </div>
 
         {/* ── Add / Edit Form ── */}
-        <div className="glass glass-strong rounded-3xl p-6 h-fit sticky top-8">
+        <div className="glass glass-strong rounded-3xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-lg">{editingProjId ? 'Edit Project' : 'Add Project'}</h2>
             {editingProjId && <button onClick={() => { setEditingProjId(null); setProjForm({ ...emptyProject, service_id: projForm.service_id }); }} className="text-muted-foreground hover:text-foreground p-1"><XIcon size={18} /></button>}
@@ -275,6 +308,78 @@ function AdminProjects() {
             <div>
               <label className="text-sm font-medium mb-1.5 block">Link URL (optional)</label>
               <input value={projForm.link_url} onChange={e => setProjForm({ ...projForm, link_url: e.target.value })} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://..." />
+            </div>
+
+            {/* ── Block Builder ── */}
+            <div className="pt-4 border-t border-white/10 mt-6">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-semibold flex items-center gap-2"><LayoutList size={16} className="text-brand-blue" /> Page Content Blocks</label>
+              </div>
+              <div className="space-y-3 mb-4">
+                {projForm.content_blocks.map((block, idx) => (
+                  <div key={block.id} className="glass rounded-xl p-3 border border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{block.type} Block</span>
+                      <div className="flex items-center gap-1">
+                        <button type="button" onClick={() => moveBlock(idx, 'up')} disabled={idx === 0} className="p-1 glass-hover rounded text-muted-foreground disabled:opacity-30"><ArrowUp size={14}/></button>
+                        <button type="button" onClick={() => moveBlock(idx, 'down')} disabled={idx === projForm.content_blocks.length - 1} className="p-1 glass-hover rounded text-muted-foreground disabled:opacity-30"><ArrowDown size={14}/></button>
+                        <button type="button" onClick={() => removeBlock(block.id)} className="p-1 glass-hover rounded text-destructive ml-1"><Trash2 size={14}/></button>
+                      </div>
+                    </div>
+                    {block.type === 'text' && (
+                      <div className="space-y-2">
+                        <textarea value={block.text_en} onChange={e => updateBlock(block.id, { text_en: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" rows={3} placeholder="Text (EN)..." />
+                        <textarea value={block.text_ar} onChange={e => updateBlock(block.id, { text_ar: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm text-right" dir="rtl" rows={3} placeholder="النص (AR)..." />
+                      </div>
+                    )}
+                    {block.type === 'image' && (
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <input value={block.url} onChange={e => updateBlock(block.id, { url: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Image URL..." />
+                          <select value={block.aspect || 'auto'} onChange={e => updateBlock(block.id, { aspect: e.target.value as any })} className="glass-input w-full rounded-lg px-3 py-2 text-sm">
+                            <option value="auto" className="bg-black text-white">Original / Auto</option>
+                            <option value="16/9" className="bg-black text-white">Horizontal (16:9)</option>
+                            <option value="9/16" className="bg-black text-white">Vertical (9:16)</option>
+                            <option value="1/1" className="bg-black text-white">Square (1:1)</option>
+                            <option value="4/3" className="bg-black text-white">Standard (4:3)</option>
+                          </select>
+                        </div>
+                        {block.url && (
+                          <div className="mt-2 p-2 glass rounded-xl border border-white/10 flex justify-center bg-black/20">
+                            <div className={`relative overflow-hidden rounded-lg w-full ${
+                              block.aspect === '16/9' ? 'aspect-video' :
+                              block.aspect === '9/16' ? 'aspect-[9/16] max-w-[150px]' :
+                              block.aspect === '1/1' ? 'aspect-square max-w-[200px]' :
+                              block.aspect === '4/3' ? 'aspect-[4/3] max-w-[250px]' :
+                              ''
+                            }`}>
+                              <img src={block.url} alt="" className={`w-full ${!block.aspect || block.aspect === 'auto' ? 'h-auto max-h-48 object-contain' : 'h-full object-cover absolute inset-0'}`} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {block.type === 'video' && (
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <input value={block.url} onChange={e => updateBlock(block.id, { url: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Video URL (MP4 or YouTube)..." />
+                          <select value={block.aspect || '16/9'} onChange={e => updateBlock(block.id, { aspect: e.target.value as any })} className="glass-input w-full rounded-lg px-3 py-2 text-sm">
+                            <option value="16/9" className="bg-black text-white">Horizontal (16:9)</option>
+                            <option value="9/16" className="bg-black text-white">Vertical (9:16)</option>
+                            <option value="1/1" className="bg-black text-white">Square (1:1)</option>
+                            <option value="4/3" className="bg-black text-white">Standard (4:3)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => addBlock('text')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Type size={14}/> Add Text</button>
+                <button type="button" onClick={() => addBlock('image')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Image size={14}/> Add Image</button>
+                <button type="button" onClick={() => addBlock('video')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Video size={14}/> Add Video</button>
+              </div>
             </div>
             <button
               onClick={handleSaveProj}

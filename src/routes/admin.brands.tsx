@@ -168,8 +168,8 @@ function AdminBrands() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 glass glass-strong rounded-3xl p-6">
+      <div className="grid lg:grid-cols-2 gap-8">
+        <div className="glass glass-strong rounded-3xl p-6">
           <h2 className="font-semibold mb-4 text-lg">Active Brands (Drag to Reorder)</h2>
           {isLoading ? (
             <div className="p-8 flex justify-center text-brand-blue"><Loader2 className="animate-spin" size={24} /></div>
@@ -199,7 +199,7 @@ function AdminBrands() {
           )}
         </div>
 
-        <div className="glass glass-strong rounded-3xl p-6 h-fit sticky top-8">
+        <div className="glass glass-strong rounded-3xl p-6">
           <h2 className="font-semibold mb-4 text-lg">Add Brand</h2>
           <div className="space-y-4">
             <div>

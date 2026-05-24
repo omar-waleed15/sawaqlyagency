@@ -187,10 +187,128 @@ function ProjectDetailsPage() {
 
         {/* Narrow Article Description */}
         <div className="reveal max-w-2xl w-full text-center space-y-12">
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-light whitespace-pre-wrap">
-            {description}
-          </p>
+          {description && (
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-light whitespace-pre-wrap">
+              {description}
+            </p>
+          )}
+        </div>
 
+        {/* Dynamic Content Blocks */}
+        {project.content_blocks && project.content_blocks.length > 0 && (
+          <div className="w-full max-w-4xl space-y-16 py-12 flex flex-col items-center">
+            {project.content_blocks.map((block: any) => {
+              if (block.type === 'text') {
+                const blockText = lang === 'ar' && block.text_ar ? block.text_ar : block.text_en;
+                if (!blockText) return null;
+                return (
+                  <div key={block.id} className="reveal max-w-2xl w-full text-center text-lg md:text-xl text-muted-foreground leading-relaxed font-light whitespace-pre-wrap">
+                    {blockText}
+                  </div>
+                );
+              }
+              if (block.type === 'image') {
+                if (!block.url) return null;
+                
+                let containerClass = "reveal relative w-fit max-w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 mx-auto";
+                let imgClass = "max-w-full h-auto block";
+
+                if (block.aspect === '16/9') {
+                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-video";
+                  imgClass = "w-full h-full absolute inset-0 object-cover";
+                } else if (block.aspect === '9/16') {
+                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-[9/16] max-w-[400px] mx-auto";
+                  imgClass = "w-full h-full absolute inset-0 object-cover";
+                } else if (block.aspect === '1/1') {
+                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-square max-w-[600px] mx-auto";
+                  imgClass = "w-full h-full absolute inset-0 object-cover";
+                } else if (block.aspect === '4/3') {
+                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-[4/3] max-w-[800px] mx-auto";
+                  imgClass = "w-full h-full absolute inset-0 object-cover";
+                }
+
+                return (
+                  <div key={block.id} className={containerClass}>
+                    <img src={block.url} alt="" className={imgClass} />
+                  </div>
+                );
+              }
+              if (block.type === 'video') {
+                if (!block.url) return null;
+                let videoUrl = block.url;
+                
+                // YouTube Standard & Shorts
+                const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+                if (isYouTube) {
+                  if (videoUrl.includes('watch?v=')) {
+                    videoUrl = videoUrl.replace('watch?v=', 'embed/').split('&')[0];
+                  } else if (videoUrl.includes('youtu.be/')) {
+                    videoUrl = videoUrl.replace('youtu.be/', 'youtube.com/embed/').split('?')[0];
+                  } else if (videoUrl.includes('/shorts/')) {
+                    videoUrl = videoUrl.replace('/shorts/', '/embed/').split('?')[0];
+                  }
+                }
+
+                // Instagram Reels/Posts
+                const isInstagram = videoUrl.includes('instagram.com/reel/') || videoUrl.includes('instagram.com/p/');
+                if (isInstagram) {
+                  // Ensure URL ends with /embed
+                  videoUrl = videoUrl.split('?')[0];
+                  if (!videoUrl.endsWith('/')) videoUrl += '/';
+                  videoUrl += 'embed';
+                }
+
+                // TikTok
+                const isTikTok = videoUrl.includes('tiktok.com');
+                if (isTikTok) {
+                  const match = videoUrl.match(/video\/(\d+)/);
+                  if (match) {
+                    videoUrl = `https://www.tiktok.com/embed/v2/${match[1]}`;
+                  }
+                }
+
+                const isIframe = isYouTube || isInstagram || isTikTok;
+                
+                let aspectClass = '';
+                if (block.aspect === '16/9') aspectClass = 'aspect-video';
+                else if (block.aspect === '9/16') aspectClass = 'aspect-[9/16] max-w-[400px] mx-auto';
+                else if (block.aspect === '1/1') aspectClass = 'aspect-square max-w-[600px] mx-auto';
+                else if (block.aspect === '4/3') aspectClass = 'aspect-[4/3] max-w-[800px] mx-auto';
+                else aspectClass = 'aspect-video'; // fallback for video
+                
+                return (
+                  <div key={block.id} className={`reveal relative w-full rounded-[2rem] overflow-hidden shadow-2xl glass-strong border border-white/10 bg-black/50 ${aspectClass}`}>
+                    {isIframe ? (
+                      <iframe
+                        className="w-full h-full absolute inset-0"
+                        src={videoUrl}
+                        title="Video player"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    ) : (
+                      <video 
+                        controls 
+                        playsInline
+                        controlsList="nodownload"
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full h-full absolute inset-0 object-contain bg-black/50" 
+                      >
+                        <source src={videoUrl} type={videoUrl.toLowerCase().endsWith('.mov') ? 'video/quicktime' : 'video/mp4'} />
+                        <source src={videoUrl} />
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+
+        {/* Action Link */}
+        <div className="reveal mt-12">
           {project.link_url && (
             <div className="pt-4">
               <a

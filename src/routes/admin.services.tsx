@@ -201,8 +201,8 @@ function AdminServices() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 glass glass-strong rounded-3xl p-6">
+      <div className="grid lg:grid-cols-2 gap-8">
+        <div className="glass glass-strong rounded-3xl p-6">
           <h2 className="font-semibold mb-4 text-lg">Current Services (Drag to Reorder)</h2>
           <div className="space-y-3 relative">
             {isLoading ? (
@@ -234,7 +234,7 @@ function AdminServices() {
           </div>
         </div>
 
-        <div className="glass glass-strong rounded-3xl p-6 h-fit sticky top-8">
+        <div className="glass glass-strong rounded-3xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-lg">{editingId ? 'Edit Service' : 'Add New Service'}</h2>
             {editingId && (
