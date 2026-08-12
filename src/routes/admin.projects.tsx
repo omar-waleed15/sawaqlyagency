@@ -79,14 +79,14 @@ function AdminProjects() {
   );
 
   // ── Queries ──
-  const { data: services = [], isLoading: servicesLoading } = useQuery({
+  const { data: services = [], isLoading: servicesLoading } = useQuery<any[]>({
     queryKey: ['services'],
     queryFn: async () => {
       const { data, error } = await supabase.from('services').select('id, title, title_ar').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
       if (error) throw error;
-      return data;
+      return data || [];
     },
-  } as any);
+  });
 
   const { data: allProjects = [], isLoading: projsLoading } = useQuery({
     queryKey: ['projects'],
@@ -115,7 +115,12 @@ function AdminProjects() {
       const { error } = await supabase.from('projects').update(data).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['projects'] }); setProjForm({ ...emptyProject, service_id: projForm.service_id }); setEditingProjId(null); },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', variables.id] });
+      setProjForm({ ...emptyProject, service_id: projForm.service_id });
+      setEditingProjId(null);
+    },
   });
 
   const deleteProjMutation = useMutation({
@@ -136,43 +141,70 @@ function AdminProjects() {
   // ── Handlers ──
   const handleSaveProj = () => {
     if (!projForm.title_en) return;
-    if (editingProjId) updateProjMutation.mutate({ id: editingProjId, data: projForm });
-    else addProjMutation.mutate(projForm);
+    const blocks = Array.isArray(projForm.content_blocks) ? projForm.content_blocks : [];
+    const cleanedBlocks = blocks.filter(b => {
+      if (b.type === 'image') return Boolean(b.url && b.url.trim());
+      if (b.type === 'video') return Boolean(b.url && b.url.trim());
+      if (b.type === 'text') return Boolean((b.text_en && b.text_en.trim()) || (b.text_ar && b.text_ar.trim()));
+      return true;
+    });
+    const cleanedData = {
+      ...projForm,
+      image_url: (projForm.image_url || '').trim(),
+      content_blocks: cleanedBlocks,
+    };
+    if (editingProjId) updateProjMutation.mutate({ id: editingProjId, data: cleanedData });
+    else addProjMutation.mutate(cleanedData);
   };
 
   const handleEditProj = (proj: any) => {
     setEditingProjId(proj.id);
+    const rawBlocks = proj.content_blocks;
+    const parsedBlocks = Array.isArray(rawBlocks)
+      ? rawBlocks
+      : typeof rawBlocks === 'string'
+      ? (() => { try { return JSON.parse(rawBlocks); } catch { return []; } })()
+      : [];
     setProjForm({
       title_en: proj.title_en || '', title_ar: proj.title_ar || '',
       description_en: proj.description_en || '', description_ar: proj.description_ar || '',
       image_url: proj.image_url || '', link_url: proj.link_url || '',
       service_id: proj.service_id || '',
-      content_blocks: proj.content_blocks || [],
+      content_blocks: parsedBlocks,
     });
   };
 
   // ── Block Handlers ──
   const addBlock = (type: Block['type']) => {
-    setProjForm(prev => ({
-      ...prev,
-      content_blocks: [...prev.content_blocks, { id: Math.random().toString(36).substring(2, 9), type, text_en: '', text_ar: '', url: '', aspect: type === 'video' ? '16/9' : undefined }]
-    }));
+    setProjForm(prev => {
+      const blocks = Array.isArray(prev.content_blocks) ? prev.content_blocks : [];
+      return {
+        ...prev,
+        content_blocks: [...blocks, { id: Math.random().toString(36).substring(2, 9), type, text_en: '', text_ar: '', url: '', aspect: type === 'video' ? '16/9' : undefined }]
+      };
+    });
   };
   const updateBlock = (id: string, updates: Partial<Block>) => {
-    setProjForm(prev => ({
-      ...prev,
-      content_blocks: prev.content_blocks.map(b => b.id === id ? { ...b, ...updates } : b)
-    }));
+    setProjForm(prev => {
+      const blocks = Array.isArray(prev.content_blocks) ? prev.content_blocks : [];
+      return {
+        ...prev,
+        content_blocks: blocks.map(b => b.id === id ? { ...b, ...updates } : b)
+      };
+    });
   };
   const removeBlock = (id: string) => {
-    setProjForm(prev => ({
-      ...prev,
-      content_blocks: prev.content_blocks.filter(b => b.id !== id)
-    }));
+    setProjForm(prev => {
+      const blocks = Array.isArray(prev.content_blocks) ? prev.content_blocks : [];
+      return {
+        ...prev,
+        content_blocks: blocks.filter(b => b.id !== id)
+      };
+    });
   };
   const moveBlock = (index: number, direction: 'up' | 'down') => {
     setProjForm(prev => {
-      const blocks = [...prev.content_blocks];
+      const blocks = [...(Array.isArray(prev.content_blocks) ? prev.content_blocks : [])];
       if (direction === 'up' && index > 0) {
         [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
       } else if (direction === 'down' && index < blocks.length - 1) {
@@ -301,28 +333,114 @@ function AdminProjects() {
               <label className="text-sm font-medium mb-1.5 block">Description (AR)</label>
               <textarea value={projForm.description_ar} onChange={e => setProjForm({ ...projForm, description_ar: e.target.value })} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm text-right" dir="rtl" rows={2} placeholder="وصف موجز..." />
             </div>
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Image URL</label>
-              <input value={projForm.image_url} onChange={e => setProjForm({ ...projForm, image_url: e.target.value })} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://..." />
+
+            {/* ── Top Image Carousel Gallery Section ── */}
+            <div className="pt-4 border-t border-white/10 mt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm font-semibold flex items-center gap-2 text-navy">
+                    <Image size={16} className="text-brand-blue" /> Top Image Carousel Gallery
+                  </label>
+
+                  <p className="text-xs text-muted-foreground mt-0.5 font-light">
+                    Images rendered in the header carousel at the top of the project page.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => addBlock('image')}
+                  className="glass glass-hover text-brand-blue rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 shrink-0"
+                >
+                  <Plus size={14} /> Add Slide
+                </button>
+              </div>
+
+              {/* Slide 1: Main Cover Image */}
+              <div className="glass rounded-xl p-3 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-brand-blue flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-brand-blue/20 text-brand-blue flex items-center justify-center text-[10px]">1</span>
+                    Main Cover Image (Slide 1)
+                  </span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-semibold">Service Card Thumbnail</span>
+                </div>
+                <input
+                  value={projForm.image_url}
+                  onChange={e => setProjForm({ ...projForm, image_url: e.target.value })}
+                  className="glass-input w-full rounded-lg px-3 py-2 text-sm"
+                  placeholder="https://... (Cover Image URL)"
+                />
+              </div>
+
+              {/* Extra Slides (Slides 2, 3, ...) */}
+              {(Array.isArray(projForm.content_blocks) ? projForm.content_blocks : []).filter(b => b.type === 'image').map((block, imgIdx) => (
+                <div key={block.id} className="glass rounded-xl p-3 border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-brand-blue flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-full bg-brand-blue/20 text-brand-blue flex items-center justify-center text-[10px]">{imgIdx + 2}</span>
+                      Carousel Slide {imgIdx + 2}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeBlock(block.id)}
+                      className="p-1 glass-hover rounded text-destructive hover:bg-destructive/10"
+                      aria-label="Remove Slide"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <input
+                    value={block.url || ''}
+                    onChange={e => updateBlock(block.id, { url: e.target.value })}
+                    className="glass-input w-full rounded-lg px-3 py-2 text-sm"
+                    placeholder="https://... (Additional Carousel Image URL)"
+                  />
+                </div>
+              ))}
+
+              {/* Visual Live Carousel Preview Strip */}
+              {(() => {
+                const blocks = Array.isArray(projForm.content_blocks) ? projForm.content_blocks : [];
+                const allImgs = [projForm.image_url, ...blocks.filter(b => b.type === 'image' && b.url).map(b => b.url)].filter(Boolean);
+                if (allImgs.length === 0) return null;
+                return (
+                  <div className="pt-2">
+                    <div className="text-[11px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+                      Live Carousel Preview ({allImgs.length} slide{allImgs.length > 1 ? 's' : ''})
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                      {allImgs.map((src, i) => (
+                        <div key={i} className="relative group shrink-0 w-20 h-14 rounded-lg overflow-hidden border border-white/10 glass bg-black/40">
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                          <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded font-mono font-bold">
+                            #{i + 1}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
+
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Link URL (optional)</label>
+              <label className="text-sm font-medium mb-1.5 block">Link URL (optional external link)</label>
               <input value={projForm.link_url} onChange={e => setProjForm({ ...projForm, link_url: e.target.value })} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://..." />
             </div>
 
-            {/* ── Block Builder ── */}
+            {/* ── Text & Video Content Blocks Builder ── */}
             <div className="pt-4 border-t border-white/10 mt-6">
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-semibold flex items-center gap-2"><LayoutList size={16} className="text-brand-blue" /> Page Content Blocks</label>
+                <label className="text-sm font-semibold flex items-center gap-2 text-navy">
+                  <LayoutList size={16} className="text-brand-blue" /> Article Content Blocks (Text & Video)
+                </label>
               </div>
               <div className="space-y-3 mb-4">
-                {projForm.content_blocks.map((block, idx) => (
+                {(Array.isArray(projForm.content_blocks) ? projForm.content_blocks : []).filter(b => b.type !== 'image').map((block, idx) => (
                   <div key={block.id} className="glass rounded-xl p-3 border border-white/5 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{block.type} Block</span>
                       <div className="flex items-center gap-1">
-                        <button type="button" onClick={() => moveBlock(idx, 'up')} disabled={idx === 0} className="p-1 glass-hover rounded text-muted-foreground disabled:opacity-30"><ArrowUp size={14}/></button>
-                        <button type="button" onClick={() => moveBlock(idx, 'down')} disabled={idx === projForm.content_blocks.length - 1} className="p-1 glass-hover rounded text-muted-foreground disabled:opacity-30"><ArrowDown size={14}/></button>
                         <button type="button" onClick={() => removeBlock(block.id)} className="p-1 glass-hover rounded text-destructive ml-1"><Trash2 size={14}/></button>
                       </div>
                     </div>
@@ -332,37 +450,10 @@ function AdminProjects() {
                         <textarea value={block.text_ar} onChange={e => updateBlock(block.id, { text_ar: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm text-right" dir="rtl" rows={3} placeholder="النص (AR)..." />
                       </div>
                     )}
-                    {block.type === 'image' && (
-                      <div className="space-y-3">
-                        <div className="space-y-2">
-                          <input value={block.url} onChange={e => updateBlock(block.id, { url: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Image URL..." />
-                          <select value={block.aspect || 'auto'} onChange={e => updateBlock(block.id, { aspect: e.target.value as any })} className="glass-input w-full rounded-lg px-3 py-2 text-sm">
-                            <option value="auto" className="bg-black text-white">Original / Auto</option>
-                            <option value="16/9" className="bg-black text-white">Horizontal (16:9)</option>
-                            <option value="9/16" className="bg-black text-white">Vertical (9:16)</option>
-                            <option value="1/1" className="bg-black text-white">Square (1:1)</option>
-                            <option value="4/3" className="bg-black text-white">Standard (4:3)</option>
-                          </select>
-                        </div>
-                        {block.url && (
-                          <div className="mt-2 p-2 glass rounded-xl border border-white/10 flex justify-center bg-black/20">
-                            <div className={`relative overflow-hidden rounded-lg w-full ${
-                              block.aspect === '16/9' ? 'aspect-video' :
-                              block.aspect === '9/16' ? 'aspect-[9/16] max-w-[150px]' :
-                              block.aspect === '1/1' ? 'aspect-square max-w-[200px]' :
-                              block.aspect === '4/3' ? 'aspect-[4/3] max-w-[250px]' :
-                              ''
-                            }`}>
-                              <img src={block.url} alt="" className={`w-full ${!block.aspect || block.aspect === 'auto' ? 'h-auto max-h-48 object-contain' : 'h-full object-cover absolute inset-0'}`} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
                     {block.type === 'video' && (
                       <div className="space-y-3">
                         <div className="space-y-2">
-                          <input value={block.url} onChange={e => updateBlock(block.id, { url: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Video URL (MP4 or YouTube)..." />
+                          <input value={block.url} onChange={e => updateBlock(block.id, { url: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Video URL (YouTube, Vimeo, MP4)..." />
                           <select value={block.aspect || '16/9'} onChange={e => updateBlock(block.id, { aspect: e.target.value as any })} className="glass-input w-full rounded-lg px-3 py-2 text-sm">
                             <option value="16/9" className="bg-black text-white">Horizontal (16:9)</option>
                             <option value="9/16" className="bg-black text-white">Vertical (9:16)</option>
@@ -376,9 +467,8 @@ function AdminProjects() {
                 ))}
               </div>
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => addBlock('text')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Type size={14}/> Add Text</button>
-                <button type="button" onClick={() => addBlock('image')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Image size={14}/> Add Image</button>
-                <button type="button" onClick={() => addBlock('video')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Video size={14}/> Add Video</button>
+                <button type="button" onClick={() => addBlock('text')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Type size={14}/> Add Text Block</button>
+                <button type="button" onClick={() => addBlock('video')} className="flex-1 glass glass-hover rounded-xl py-2 text-xs font-semibold flex items-center justify-center gap-1.5"><Video size={14}/> Add Video Block</button>
               </div>
             </div>
             <button

@@ -43,6 +43,14 @@ const translations = {
     ar: "فريقنا من الاستراتيجيين والمصممين والمهندسين يعملون معاً بسلاسة لتحويل أجرأ أفكارك إلى واقع.",
   },
 
+  // Projects
+  "projects.title": { en: "Featured Work", ar: "أبرز أعمالنا" },
+  "projects.sub": {
+    en: "Explore our latest client success stories and creative showcases.",
+    ar: "استكشف أحدث قصص نجاح عملائنا واستعراضاتنا الإبداعية.",
+  },
+
+
   // Contact
   "contact.title": {
     en: "Let's build something worth talking about.",

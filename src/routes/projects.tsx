@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, ArrowLeft, ExternalLink, Menu, X } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useI18n } from '../lib/i18n';
 import InteractiveLogo from '@/components/InteractiveLogo';
 import { Footer } from './index';
+import { DEFAULT_SERVICES, DEFAULT_PROJECTS } from '../lib/defaultData';
 
 export const Route = createFileRoute('/projects')({
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { service?: string } => ({
     service: (search.service as string) || undefined,
   }),
   head: () => ({
@@ -94,12 +95,12 @@ function Header() {
 
 // ─── Project Card ─────────────────────────────────────────────────────────────
 function ProjectCard({ project, lang, index }: { project: any; lang: string; index: number }) {
-  const title = lang === 'ar' && project.title_ar ? project.title_ar : project.title_en;
-  const description = lang === 'ar' && project.description_ar ? project.description_ar : project.description_en;
+  const title = lang === 'ar' && project.title_ar ? project.title_ar : (project.title_en || project.title);
+  const description = lang === 'ar' && project.description_ar ? project.description_ar : (project.description_en || project.description);
 
   return (
     <div
-      className="group glass glass-hover rounded-3xl overflow-hidden reveal in flex flex-col"
+      className="group glass glass-hover rounded-3xl overflow-hidden reveal in flex flex-col h-full"
       style={{ transitionDelay: `${(index % 3) * 80}ms` }}
     >
       {/* Image */}
@@ -121,10 +122,10 @@ function ProjectCard({ project, lang, index }: { project: any; lang: string; ind
             href={project.link_url}
             target="_blank"
             rel="noreferrer"
-            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
             aria-label={`Open ${title}`}
           >
-            <span className="glass glass-tint-blue rounded-full p-3 shadow-2xl">
+            <span className="glass glass-tint-blue rounded-full p-3 shadow-2xl hover:scale-110 transition-transform">
               <ExternalLink size={20} />
             </span>
           </a>
@@ -137,7 +138,7 @@ function ProjectCard({ project, lang, index }: { project: any; lang: string; ind
         {description && (
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light line-clamp-2 flex-grow">{description}</p>
         )}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between pt-2">
           <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
           <Link
             to="/projects/$projectId"
@@ -176,18 +177,26 @@ function ProjectsPage() {
   const { data: services = [], isLoading: servicesLoading } = useQuery({
     queryKey: ['services'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('services').select('id, title, title_ar').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase.from('services').select('id, title, title_ar').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
+        if (error) return DEFAULT_SERVICES;
+        return data && data.length > 0 ? data : DEFAULT_SERVICES;
+      } catch {
+        return DEFAULT_SERVICES;
+      }
     },
   });
 
   const { data: allProjects = [], isLoading: projsLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('projects').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase.from('projects').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
+        if (error) return DEFAULT_PROJECTS;
+        return data && data.length > 0 ? data : DEFAULT_PROJECTS;
+      } catch {
+        return DEFAULT_PROJECTS;
+      }
     },
   });
 

@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 import { useI18n } from "../lib/i18n";
+import { DEFAULT_SERVICES, DEFAULT_BRANDS, DEFAULT_TEAM, DEFAULT_PROJECTS } from "../lib/defaultData";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -121,6 +123,7 @@ function Index() {
         <Hero />
         <Marquee />
         <Services />
+        <ProjectsSection />
         <Team />
         <LocationMap />
         <Contact />
@@ -165,7 +168,7 @@ function Header() {
         </a>
         <nav className="hidden lg:flex items-center gap-8 text-sm">
           <a href="#services" className="hover:text-brand-blue transition">{t("nav.services")}</a>
-          <Link to="/projects" className="hover:text-brand-blue transition">{t("nav.projects")}</Link>
+          <a href="#projects" className="hover:text-brand-blue transition">{t("nav.projects")}</a>
           <a href="#team" className="hover:text-brand-blue transition">{t("nav.team")}</a>
           <a href="#contact" className="hover:text-brand-blue transition">{t("nav.contact")}</a>
           <Link to="/careers" className="hover:text-brand-blue transition">{t("nav.careers")}</Link>
@@ -207,7 +210,7 @@ function Header() {
       >
         <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
           <a onClick={() => setOpen(false)} href="#services" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.services")}</a>
-          <Link onClick={() => setOpen(false)} to="/projects" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.projects")}</Link>
+          <a onClick={() => setOpen(false)} href="#projects" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.projects")}</a>
           <a onClick={() => setOpen(false)} href="#team" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.team")}</a>
           <a onClick={() => setOpen(false)} href="#contact" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.contact")}</a>
           <Link onClick={() => setOpen(false)} to="/careers" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.careers")}</Link>
@@ -307,12 +310,17 @@ function Marquee() {
   const { data: dbBrands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('brands').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase.from('brands').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
+        if (error) return DEFAULT_BRANDS;
+        return data && data.length > 0 ? data : DEFAULT_BRANDS;
+      } catch {
+        return DEFAULT_BRANDS;
+      }
     }
   });
-  const items = dbBrands;
+
+  const items = dbBrands && dbBrands.length > 0 ? dbBrands : DEFAULT_BRANDS;
 
   // Preload all unique logo images before showing the marquee
   useEffect(() => {
@@ -344,7 +352,7 @@ function Marquee() {
   const row = [...halfItems, ...halfItems];
 
   return (
-    <section className="relative py-20 reveal" dir="ltr">
+    <section className="relative py-20 reveal in" dir="ltr">
       <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-10">
         {t("marquee.label")}
       </p>
@@ -377,13 +385,17 @@ function Services() {
   const { data: dbServices = [] } = useQuery({
     queryKey: ['services'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('services').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase.from('services').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
+        if (error) return DEFAULT_SERVICES;
+        return data && data.length > 0 ? data : DEFAULT_SERVICES;
+      } catch {
+        return DEFAULT_SERVICES;
+      }
     }
   });
 
-  if (dbServices.length === 0) return null;
+  const servicesList = dbServices && dbServices.length > 0 ? dbServices : DEFAULT_SERVICES;
 
   return (
     <section id="services" className="relative">
@@ -395,14 +407,15 @@ function Services() {
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6">
-          {dbServices.map((service, i) => {
-            const { icon_name, title, description, title_ar, description_ar } = service;
-            const displayTitle = lang === 'ar' && title_ar ? title_ar : title;
-            const displayDesc = lang === 'ar' && description_ar ? description_ar : description;
-            const Icon = (Icons as any)[icon_name] || Icons.HelpCircle;
+          {servicesList.map((service: any, i: number) => {
+            const { icon_name, icon, title, description, title_ar, description_ar, title_en, description_en } = service;
+            const displayTitle = lang === 'ar' && title_ar ? title_ar : (title_en || title);
+            const displayDesc = lang === 'ar' && description_ar ? description_ar : (description_en || description);
+            const iconKey = icon_name || icon || 'HelpCircle';
+            const Icon = (Icons as any)[iconKey] || Icons.HelpCircle;
             return (
               <div
-                key={title}
+                key={service.id || title || i}
                 className="group glass glass-hover rounded-3xl p-7 reveal in flex flex-col h-full"
                 style={{ transitionDelay: `${(i % 3) * 60}ms` }}
               >
@@ -417,7 +430,7 @@ function Services() {
                     className="w-10 h-10 rounded-full glass glass-tint-blue flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-brand-blue/20"
                     aria-label="See Projects"
                   >
-                    <Icons.ArrowRight size={18} />
+                    <Icons.ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
                   </Link>
                 </div>
               </div>
@@ -429,19 +442,113 @@ function Services() {
   );
 }
 
-
-function Team() {
-  const { t } = useI18n();
-  const { data: dbTeam = [] } = useQuery({
-    queryKey: ['team'],
+function ProjectsSection() {
+  const { t, lang } = useI18n();
+  const c = useCopy();
+  const { data: dbProjects = [] } = useQuery({
+    queryKey: ['projects'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('team').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*, services(title, title_ar)')
+          .order('sort_order', { ascending: true, nullsFirst: false })
+          .order('created_at', { ascending: true });
+        if (error) return DEFAULT_PROJECTS;
+        return data && data.length > 0 ? data : DEFAULT_PROJECTS;
+      } catch {
+        return DEFAULT_PROJECTS;
+      }
     }
   });
 
-  if (dbTeam.length === 0) return null;
+  const projectsList = dbProjects && dbProjects.length > 0 ? dbProjects : DEFAULT_PROJECTS;
+
+  return (
+    <section id="projects" className="relative py-14 md:py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mb-14 text-center">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">
+            {c('projects_title_en', 'projects_title_ar', t("projects.title") || (lang === 'ar' ? 'أبرز أعمالنا' : 'Featured Work'))}
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+            {c('projects_sub_en', 'projects_sub_ar', t("projects.sub") || (lang === 'ar' ? 'استكشف أحدث قصص نجاح عملائنا واستعراضاتنا الإبداعية.' : 'Explore our latest client success stories and creative showcases.'))}
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-8">
+          {projectsList.slice(0, 4).map((project: any, i: number) => {
+            const title = lang === 'ar' && project.title_ar ? project.title_ar : (project.title_en || project.title);
+            const description = lang === 'ar' && project.description_ar ? project.description_ar : (project.description_en || project.description);
+            const category = lang === 'ar' && project.services?.title_ar ? project.services.title_ar : (project.services?.title || (lang === 'ar' ? 'تسويق' : 'Marketing'));
+            return (
+              <div
+                key={project.id || i}
+                className="group glass glass-hover rounded-3xl overflow-hidden reveal in flex flex-col h-full"
+                style={{ transitionDelay: `${(i % 2) * 80}ms` }}
+              >
+                <div className="relative overflow-hidden aspect-video bg-white/5 shrink-0">
+                  {project.image_url ? (
+                    <img
+                      src={project.image_url}
+                      alt={title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-sm">No Image</div>
+                  )}
+                  <div className="absolute top-4 left-4 z-10 glass glass-tint-blue rounded-full px-3 py-1 text-xs font-semibold">
+                    {category}
+                  </div>
+                </div>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-navy leading-snug">{title}</h3>
+                  {description && (
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light line-clamp-2 flex-grow">{description}</p>
+                  )}
+                  <div className="mt-6 flex items-center justify-between pt-2">
+                    <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
+                    <Link
+                      to="/projects/$projectId"
+                      params={{ projectId: project.id }}
+                      className="glass glass-tint-blue glass-hover inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider"
+                    >
+                      {lang === 'ar' ? 'عرض التفاصيل' : 'View Details'} <Icons.ArrowRight size={14} className={lang === 'ar' ? 'rotate-180' : ''} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-12 text-center">
+          <Link
+            to="/projects"
+            className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold tracking-wide uppercase"
+          >
+            {lang === 'ar' ? 'عرض جميع المشاريع' : 'View All Projects'} <Icons.ArrowRight size={16} className={lang === 'ar' ? 'rotate-180' : ''} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Team() {
+  const { t, lang } = useI18n();
+  const { data: dbTeam = [] } = useQuery({
+    queryKey: ['team'],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase.from('team').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
+        if (error) return DEFAULT_TEAM;
+        return data && data.length > 0 ? data : DEFAULT_TEAM;
+      } catch {
+        return DEFAULT_TEAM;
+      }
+    }
+  });
+
+  const teamList = dbTeam && dbTeam.length > 0 ? dbTeam : DEFAULT_TEAM;
 
   return (
     <section id="team" className="relative">
@@ -453,23 +560,28 @@ function Team() {
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {dbTeam.map((m: any, i: number) => (
-            <div
-              key={m.name}
-              className="group glass glass-hover rounded-3xl p-6 reveal in"
-              style={{ transitionDelay: `${(i % 4) * 60}ms` }}
-            >
-              <div className="glass aspect-[3/4] w-full rounded-2xl flex items-center justify-center mb-5 overflow-hidden">
-                {m.photo_url ? (
-                  <img src={m.photo_url} alt={m.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                ) : (
-                  <span className="text-muted-foreground/50 text-sm">No Photo</span>
-                )}
+          {teamList.map((m: any, i: number) => {
+            const name = lang === 'ar' && m.name_ar ? m.name_ar : (m.name_en || m.name);
+            const role = lang === 'ar' && m.role_ar ? m.role_ar : (m.role_en || m.role);
+            const photo = m.photo_url || m.image_url;
+            return (
+              <div
+                key={m.id || name || i}
+                className="group glass glass-hover rounded-3xl p-6 reveal in"
+                style={{ transitionDelay: `${(i % 4) * 60}ms` }}
+              >
+                <div className="glass aspect-[3/4] w-full rounded-2xl flex items-center justify-center mb-5 overflow-hidden">
+                  {photo ? (
+                    <img src={photo} alt={name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <span className="text-muted-foreground/50 text-sm">No Photo</span>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-navy">{name}</h3>
+                <p className="text-sm text-muted-foreground mt-1 font-light">{role}</p>
               </div>
-              <h3 className="text-lg font-bold text-navy">{m.name}</h3>
-              <p className="text-sm text-muted-foreground mt-1 font-light">{m.role}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

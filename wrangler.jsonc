@@ -4,4 +4,10 @@
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.ts",
+  "vars": {
+    "VITE_SUPABASE_URL": "https://omysootvprkkyhhdiicc.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9teXNvb3R2cHJra3loaGRpaWNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NjA5MjcsImV4cCI6MjEwMjAzNjkyN30.j4f_UIMYn9QOb5EyAgQ4F3X_dPWSYWCoDHUqnwp-xtk",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9teXNvb3R2cHJra3loaGRpaWNjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQ2MDkyNywiZXhwIjoyMTAyMDM2OTI3fQ.XttWgccITdkzt9HzK3WDIWY4g0C_98Rmx7u0n7ZVYUE"
+  }
 }
+

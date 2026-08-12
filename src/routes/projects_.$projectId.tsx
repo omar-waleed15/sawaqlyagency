@@ -1,14 +1,248 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, ExternalLink, Menu, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ExternalLink, Menu, X, Loader2, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useI18n } from '../lib/i18n';
 import { Footer } from './index';
+import { DEFAULT_PROJECTS } from '../lib/defaultData';
 
 export const Route = createFileRoute('/projects_/$projectId')({
   component: ProjectDetailsPage,
 });
+
+
+// ─── Top Image Carousel & Gallery ──────────────────────────────────────────────
+function ImageCarousel({ images, title, lang }: { images: string[]; title: string; lang: string }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  const prevSlide = useCallback(() => {
+    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
+
+  const nextSlide = useCallback(() => {
+    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        if (lang === 'ar') nextSlide();
+        else prevSlide();
+      } else if (e.key === 'ArrowRight') {
+        if (lang === 'ar') prevSlide();
+        else nextSlide();
+      } else if (e.key === 'Escape' && isLightboxOpen) {
+        setIsLightboxOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lang, nextSlide, prevSlide, isLightboxOpen]);
+
+  // Touch Swipe Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        // Swiped Left
+        if (lang === 'ar') prevSlide();
+        else nextSlide();
+      } else {
+        // Swiped Right
+        if (lang === 'ar') nextSlide();
+        else prevSlide();
+      }
+    }
+    touchStartX.current = null;
+  };
+
+  if (!images || images.length === 0) return null;
+
+  return (
+    <div className="reveal relative w-full max-w-4xl mb-20 flex flex-col items-center">
+      {/* Ambient glow behind carousel */}
+      <div className="absolute -inset-4 bg-gradient-to-tr from-brand-blue/30 to-brand-yellow/30 blur-2xl rounded-[3rem] opacity-60 mix-blend-screen pointer-events-none" />
+
+      {/* Main Viewport Container */}
+      <div 
+        className="relative rounded-[2rem] overflow-hidden shadow-2xl glass-strong border border-white/10 w-full bg-black/50 aspect-video md:aspect-[21/9] select-none group"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Slides Track */}
+        <div
+          className="flex h-full w-full transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(${lang === 'ar' ? selectedIndex * 100 : -selectedIndex * 100}%)` }}
+        >
+          {images.map((src, idx) => (
+            <div
+              key={idx}
+              className="relative min-w-0 flex-[0_0_100%] h-full w-full shrink-0 cursor-pointer overflow-hidden"
+              onClick={() => setIsLightboxOpen(true)}
+            >
+              <img
+                src={src}
+                alt={`${title} - slide ${idx + 1}`}
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Expand / Lightbox Trigger Badge */}
+        <button
+          onClick={() => setIsLightboxOpen(true)}
+          className="absolute top-4 left-4 z-10 glass px-3 py-1.5 rounded-full text-xs font-semibold text-white/90 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5"
+          aria-label="Expand image"
+        >
+          <Maximize2 size={14} /> Fullscreen
+        </button>
+
+        {/* Slide Counter Badge (Airbnb Style) */}
+        {images.length > 1 && (
+          <div className="absolute top-4 right-4 z-10 glass px-3 py-1.5 rounded-full text-xs font-mono font-bold text-white/90 shadow-lg">
+            {selectedIndex + 1} / {images.length}
+          </div>
+        )}
+
+        {/* Floating Side Arrows (always visible) */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass glass-hover flex items-center justify-center text-white transition-transform hover:scale-110 shadow-2xl z-10"
+              aria-label="Previous image"
+            >
+              {lang === 'ar' ? <ChevronRight size={22} /> : <ChevronLeft size={22} />}
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass glass-hover flex items-center justify-center text-white transition-transform hover:scale-110 shadow-2xl z-10"
+              aria-label="Next image"
+            >
+              {lang === 'ar' ? <ChevronLeft size={22} /> : <ChevronRight size={22} />}
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Navigation Controls & Dots Bar UNDER the Carousel */}
+      {images.length > 1 && (
+        <div className="mt-6 w-full flex flex-col items-center gap-4">
+          {/* Arrow Buttons & Dots Row */}
+          <div className="flex items-center gap-4">
+            {/* Left Arrow Button */}
+            <button
+              onClick={prevSlide}
+              className="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-white transition-transform hover:scale-110 shadow-lg border border-white/10"
+              aria-label="Previous photo"
+            >
+              {lang === 'ar' ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </button>
+
+            {/* Dots Counter Bar */}
+            <div className="flex items-center gap-2 glass px-4 py-2.5 rounded-full border border-white/10 bg-black/40 shadow-xl">
+              {images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedIndex(idx)}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    idx === selectedIndex
+                      ? 'w-7 bg-brand-yellow shadow-md shadow-brand-yellow/40'
+                      : 'w-2.5 bg-white/40 hover:bg-white/80'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Right Arrow Button */}
+            <button
+              onClick={nextSlide}
+              className="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-white transition-transform hover:scale-110 shadow-lg border border-white/10"
+              aria-label="Next photo"
+            >
+              {lang === 'ar' ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {isLightboxOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
+          {/* Top Bar */}
+          <div className="absolute top-6 left-6 right-6 flex items-center justify-between text-white z-20">
+            <span className="font-mono text-sm font-bold glass px-4 py-2 rounded-full">
+              {selectedIndex + 1} / {images.length} — {title}
+            </span>
+            <button
+              onClick={() => setIsLightboxOpen(false)}
+              className="glass glass-hover w-11 h-11 rounded-full flex items-center justify-center text-white transition-transform hover:scale-110"
+              aria-label="Close fullscreen view"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Main Lightbox Image */}
+          <div className="relative max-w-6xl max-h-[80vh] w-full h-full flex items-center justify-center">
+            <img
+              src={images[selectedIndex]}
+              alt={title}
+              className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
+            />
+          </div>
+
+          {/* Lightbox Navigation Controls */}
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass glass-hover flex items-center justify-center text-white transition-transform hover:scale-110 shadow-2xl z-20"
+                aria-label="Previous image"
+              >
+                {lang === 'ar' ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass glass-hover flex items-center justify-center text-white transition-transform hover:scale-110 shadow-2xl z-20"
+                aria-label="Next image"
+              >
+                {lang === 'ar' ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+              </button>
+
+              {/* Lightbox Thumbnail Strip */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 max-w-full overflow-x-auto px-4 py-2 glass rounded-full">
+                {images.map((src, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedIndex(idx)}
+                    className={`w-12 h-9 rounded-lg overflow-hidden shrink-0 transition-all ${
+                      idx === selectedIndex ? 'border-2 border-brand-yellow scale-110 opacity-100' : 'opacity-50 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 function Header() {
@@ -101,13 +335,23 @@ function ProjectDetailsPage() {
   const { data: project, isLoading: projLoading } = useQuery({
     queryKey: ['projects', projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*, services(title, title_ar)')
-        .eq('id', projectId)
-        .single();
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*, services(title, title_ar)')
+          .eq('id', projectId)
+          .single();
+        if (error || !data) {
+          const found = DEFAULT_PROJECTS.find(p => p.id === projectId);
+          if (found) return found;
+          throw error || new Error('Project not found');
+        }
+        return data;
+      } catch {
+        const found = DEFAULT_PROJECTS.find(p => p.id === projectId);
+        if (found) return found;
+        return null;
+      }
     },
   });
 
@@ -135,6 +379,27 @@ function ProjectDetailsPage() {
   const categoryName = lang === 'ar' && project.services?.title_ar
     ? project.services.title_ar
     : project.services?.title;
+
+  // Gather all unique images (Service Card Image first, followed by content block images)
+  const rawBlocks = project.content_blocks;
+  const blocks: any[] = Array.isArray(rawBlocks)
+    ? rawBlocks
+    : typeof rawBlocks === 'string'
+    ? (() => { try { return JSON.parse(rawBlocks); } catch { return []; } })()
+    : [];
+
+  const carouselImages: string[] = [];
+  if (project.image_url && typeof project.image_url === 'string' && project.image_url.trim()) {
+    carouselImages.push(project.image_url.trim());
+  }
+  blocks.forEach((block: any) => {
+    if (block && block.type === 'image' && block.url && typeof block.url === 'string' && block.url.trim()) {
+      const cleanUrl = block.url.trim();
+      if (!carouselImages.includes(cleanUrl)) {
+        carouselImages.push(cleanUrl);
+      }
+    }
+  });
 
   return (
     <div className="relative min-h-screen text-foreground overflow-x-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -170,20 +435,8 @@ function ProjectDetailsPage() {
           <div className="hidden md:block w-48 flex-shrink-0"></div>
         </div>
 
-        {/* Glowing Inset Image */}
-        {project.image_url && (
-          <div className="reveal relative w-full max-w-4xl mb-24">
-            {/* Ambient glow behind image */}
-            <div className="absolute -inset-4 bg-gradient-to-tr from-brand-blue/30 to-brand-yellow/30 blur-2xl rounded-[3rem] opacity-60 mix-blend-screen pointer-events-none" />
-            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl glass-strong border border-white/10 w-full bg-black/50 aspect-video md:aspect-[21/9]">
-              <img
-                src={project.image_url}
-                alt={title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        )}
+        {/* Top Image Carousel */}
+        <ImageCarousel images={carouselImages} title={title} lang={lang} />
 
         {/* Narrow Article Description */}
         <div className="reveal max-w-2xl w-full text-center space-y-12">
@@ -208,30 +461,8 @@ function ProjectDetailsPage() {
                 );
               }
               if (block.type === 'image') {
-                if (!block.url) return null;
-                
-                let containerClass = "reveal relative w-fit max-w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 mx-auto";
-                let imgClass = "max-w-full h-auto block";
-
-                if (block.aspect === '16/9') {
-                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-video";
-                  imgClass = "w-full h-full absolute inset-0 object-cover";
-                } else if (block.aspect === '9/16') {
-                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-[9/16] max-w-[400px] mx-auto";
-                  imgClass = "w-full h-full absolute inset-0 object-cover";
-                } else if (block.aspect === '1/1') {
-                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-square max-w-[600px] mx-auto";
-                  imgClass = "w-full h-full absolute inset-0 object-cover";
-                } else if (block.aspect === '4/3') {
-                  containerClass = "reveal relative w-full rounded-[2rem] overflow-hidden shadow-xl glass-strong border border-white/10 bg-black/50 aspect-[4/3] max-w-[800px] mx-auto";
-                  imgClass = "w-full h-full absolute inset-0 object-cover";
-                }
-
-                return (
-                  <div key={block.id} className={containerClass}>
-                    <img src={block.url} alt="" className={imgClass} />
-                  </div>
-                );
+                // Images are featured in the top carousel
+                return null;
               }
               if (block.type === 'video') {
                 if (!block.url) return null;
