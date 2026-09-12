@@ -86,7 +86,7 @@ function SortableServiceItem({ service, onEdit, onDelete, isEditing, isDeleting 
 
 function AdminServices() {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({ title: '', title_ar: '', description: '', description_ar: '', icon_name: '' });
+  const [formData, setFormData] = useState({ title: '', title_ar: '', description: '', description_ar: '', icon_name: '', icon: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
 
@@ -112,7 +112,12 @@ function AdminServices() {
 
   const addMutation = useMutation({
     mutationFn: async (newService: typeof formData) => {
-      const { error } = await supabase.from('services').insert([{ ...newService, sort_order: services.length }]);
+      const payload = {
+        ...newService,
+        icon: newService.icon_name || newService.icon || 'HelpCircle',
+        sort_order: services.length
+      };
+      const { error } = await supabase.from('services').insert([payload]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -123,7 +128,11 @@ function AdminServices() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      const { error } = await supabase.from('services').update(data).eq('id', id);
+      const payload = {
+        ...data,
+        icon: data.icon_name || data.icon || 'HelpCircle'
+      };
+      const { error } = await supabase.from('services').update(payload).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -156,12 +165,12 @@ function AdminServices() {
   });
 
   const resetForm = () => {
-    setFormData({ title: '', title_ar: '', description: '', description_ar: '', icon_name: '' });
+    setFormData({ title: '', title_ar: '', description: '', description_ar: '', icon_name: '', icon: '' });
     setEditingId(null);
   };
 
   const handleSave = () => {
-    if (!formData.title || !formData.description || !formData.icon_name) return;
+    if (!formData.title || !formData.description) return;
     if (editingId) {
       updateMutation.mutate({ id: editingId, data: formData });
     } else {
@@ -171,7 +180,8 @@ function AdminServices() {
 
   const handleEditClick = (service: any) => {
     setEditingId(service.id);
-    setFormData({ title: service.title, title_ar: service.title_ar || '', description: service.description, description_ar: service.description_ar || '', icon_name: service.icon_name });
+    const iconValue = service.icon || service.icon_name || '';
+    setFormData({ title: service.title, title_ar: service.title_ar || '', description: service.description, description_ar: service.description_ar || '', icon_name: iconValue, icon: iconValue });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import InteractiveLogo from "@/components/InteractiveLogo";
 import { useI18n } from "../lib/i18n";
-import { DEFAULT_SERVICES, DEFAULT_BRANDS, DEFAULT_TEAM, DEFAULT_PROJECTS } from "../lib/defaultData";
+import { DEFAULT_SERVICES, DEFAULT_BRANDS, DEFAULT_TEAM } from "../lib/defaultData";
 
 
 export const Route = createFileRoute("/")({
@@ -123,7 +123,6 @@ function Index() {
         <Hero />
         <Marquee />
         <Services />
-        <ProjectsSection />
         <Team />
         <LocationMap />
         <Contact />
@@ -168,7 +167,7 @@ function Header() {
         </a>
         <nav className="hidden lg:flex items-center gap-8 text-sm">
           <a href="#services" className="hover:text-brand-blue transition">{t("nav.services")}</a>
-          <a href="#projects" className="hover:text-brand-blue transition">{t("nav.projects")}</a>
+          <Link to="/projects" className="hover:text-brand-blue transition">{t("nav.projects")}</Link>
           <a href="#team" className="hover:text-brand-blue transition">{t("nav.team")}</a>
           <a href="#contact" className="hover:text-brand-blue transition">{t("nav.contact")}</a>
           <Link to="/careers" className="hover:text-brand-blue transition">{t("nav.careers")}</Link>
@@ -210,7 +209,7 @@ function Header() {
       >
         <div className="glass glass-strong rounded-3xl p-4 flex flex-col gap-1">
           <a onClick={() => setOpen(false)} href="#services" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.services")}</a>
-          <a onClick={() => setOpen(false)} href="#projects" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.projects")}</a>
+          <Link onClick={() => setOpen(false)} to="/projects" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.projects")}</Link>
           <a onClick={() => setOpen(false)} href="#team" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.team")}</a>
           <a onClick={() => setOpen(false)} href="#contact" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.contact")}</a>
           <Link onClick={() => setOpen(false)} to="/careers" className="rounded-2xl px-4 py-3 text-sm font-medium text-navy hover:bg-white/10 transition">{t("nav.careers")}</Link>
@@ -426,9 +425,8 @@ function Services() {
                   <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
                   <Link
                     to="/projects"
-                    search={{ service: service.id }}
                     className="w-10 h-10 rounded-full glass glass-tint-blue flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-brand-blue/20"
-                    aria-label="See Projects"
+                    aria-label="See Portfolio"
                   >
                     <Icons.ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
                   </Link>
@@ -436,97 +434,6 @@ function Services() {
               </div>
             );
           })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ProjectsSection() {
-  const { t, lang } = useI18n();
-  const c = useCopy();
-  const { data: dbProjects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*, services(title, title_ar)')
-          .order('sort_order', { ascending: true, nullsFirst: false })
-          .order('created_at', { ascending: true });
-        if (error) return DEFAULT_PROJECTS;
-        return data && data.length > 0 ? data : DEFAULT_PROJECTS;
-      } catch {
-        return DEFAULT_PROJECTS;
-      }
-    }
-  });
-
-  const projectsList = dbProjects && dbProjects.length > 0 ? dbProjects : DEFAULT_PROJECTS;
-
-  return (
-    <section id="projects" className="relative py-14 md:py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-14 text-center">
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold leading-tight">
-            {c('projects_title_en', 'projects_title_ar', t("projects.title") || (lang === 'ar' ? 'أبرز أعمالنا' : 'Featured Work'))}
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-            {c('projects_sub_en', 'projects_sub_ar', t("projects.sub") || (lang === 'ar' ? 'استكشف أحدث قصص نجاح عملائنا واستعراضاتنا الإبداعية.' : 'Explore our latest client success stories and creative showcases.'))}
-          </p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-8">
-          {projectsList.slice(0, 4).map((project: any, i: number) => {
-            const title = lang === 'ar' && project.title_ar ? project.title_ar : (project.title_en || project.title);
-            const description = lang === 'ar' && project.description_ar ? project.description_ar : (project.description_en || project.description);
-            const category = lang === 'ar' && project.services?.title_ar ? project.services.title_ar : (project.services?.title || (lang === 'ar' ? 'تسويق' : 'Marketing'));
-            return (
-              <div
-                key={project.id || i}
-                className="group glass glass-hover rounded-3xl overflow-hidden reveal in flex flex-col h-full"
-                style={{ transitionDelay: `${(i % 2) * 80}ms` }}
-              >
-                <div className="relative overflow-hidden aspect-video bg-white/5 shrink-0">
-                  {project.image_url ? (
-                    <img
-                      src={project.image_url}
-                      alt={title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-sm">No Image</div>
-                  )}
-                  <div className="absolute top-4 left-4 z-10 glass glass-tint-blue rounded-full px-3 py-1 text-xs font-semibold">
-                    {category}
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-navy leading-snug">{title}</h3>
-                  {description && (
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light line-clamp-2 flex-grow">{description}</p>
-                  )}
-                  <div className="mt-6 flex items-center justify-between pt-2">
-                    <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
-                    <Link
-                      to="/projects/$projectId"
-                      params={{ projectId: project.id }}
-                      className="glass glass-tint-blue glass-hover inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider"
-                    >
-                      {lang === 'ar' ? 'عرض التفاصيل' : 'View Details'} <Icons.ArrowRight size={14} className={lang === 'ar' ? 'rotate-180' : ''} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-12 text-center">
-          <Link
-            to="/projects"
-            className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold tracking-wide uppercase"
-          >
-            {lang === 'ar' ? 'عرض جميع المشاريع' : 'View All Projects'} <Icons.ArrowRight size={16} className={lang === 'ar' ? 'rotate-180' : ''} />
-          </Link>
         </div>
       </div>
     </section>
@@ -609,17 +516,24 @@ function Contact() {
     },
     onSuccess: () => {
       setSent(true);
+    },
+    onError: (err: any) => {
+      console.error('Error submitting inquiry:', err);
+      alert('Failed to submit inquiry. Please check your connection and try again.');
     }
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
+    const phoneVal = (data.get('phone_number') as string) || null;
     submitMutation.mutate({
+      type: 'contact',
       name: data.get('name'),
       company: data.get('company') || null,
       email: data.get('email') || null,
-      phone_number: data.get('phone_number'),
+      phone_number: phoneVal,
+      phone: phoneVal,
       instagram_url: data.get('instagram_url') || null,
       facebook_url: data.get('facebook_url') || null,
       website_url: data.get('website_url') || null,

@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
 
-const url = 'https://omysootvprkkyhhdiicc.supabase.co';
-const serviceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9teXNvb3R2cHJra3loaGRpaWNjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQ2MDkyNywiZXhwIjoyMTAyMDM2OTI3fQ.XttWgccITdkzt9HzK3WDIWY4g0C_98Rmx7u0n7ZVYUE';
+const env = fs.readFileSync('.env.local', 'utf8');
+const url = env.match(/VITE_SUPABASE_URL=(.*)/)?.[1]?.trim() || 'https://folocnkupniuqrzbfqpr.supabase.co';
+const serviceKey = env.match(/SUPABASE_SERVICE_ROLE_KEY=(.*)/)?.[1]?.trim() || '';
 
 const supabase = createClient(url, serviceKey, { auth: { persistSession: false } });
 

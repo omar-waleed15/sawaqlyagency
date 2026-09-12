@@ -1,29 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, ArrowLeft, ExternalLink, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { ArrowRight, ArrowLeft, Menu, X } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
-import InteractiveLogo from '@/components/InteractiveLogo';
 import { Footer } from './index';
-import { DEFAULT_SERVICES, DEFAULT_PROJECTS } from '../lib/defaultData';
+import VideoPortfolioSection from '@/components/portfolio/VideoPortfolioSection';
 
 export const Route = createFileRoute('/projects')({
-  validateSearch: (search: Record<string, unknown>): { service?: string } => ({
-    service: (search.service as string) || undefined,
-  }),
   head: () => ({
     meta: [
-      { title: 'Our Projects — Sawaqly Marketing Agency' },
-      { name: 'description', content: 'Browse our portfolio of work across branding, digital, social media, and more.' },
-      { property: 'og:title', content: 'Sawaqly Projects' },
-      { property: 'og:description', content: 'Our work speaks for itself. Explore projects by category.' },
+      { title: 'Our Portfolio — Sawaqly Marketing Agency' },
+      { name: 'description', content: 'Explore our video portfolio and client showcases.' },
+      { property: 'og:title', content: 'Sawaqly Portfolio' },
+      { property: 'og:description', content: 'The Product Behind Millions Of Views. Over 12M users on social media.' },
     ],
   }),
   component: ProjectsPage,
 });
 
-// ─── Header (reused from index, adapted for standalone page) ──────────────────
+// ─── Header ──────────────────────────────────────────────────────────────────
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -93,124 +87,9 @@ function Header() {
   );
 }
 
-// ─── Project Card ─────────────────────────────────────────────────────────────
-function ProjectCard({ project, lang, index }: { project: any; lang: string; index: number }) {
-  const title = lang === 'ar' && project.title_ar ? project.title_ar : (project.title_en || project.title);
-  const description = lang === 'ar' && project.description_ar ? project.description_ar : (project.description_en || project.description);
-
-  return (
-    <div
-      className="group glass glass-hover rounded-3xl overflow-hidden reveal in flex flex-col h-full"
-      style={{ transitionDelay: `${(index % 3) * 80}ms` }}
-    >
-      {/* Image */}
-      <div className="relative overflow-hidden aspect-video bg-white/5 shrink-0">
-        {project.image_url ? (
-          <img
-            src={project.image_url}
-            alt={title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-sm">No image</div>
-        )}
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        {/* External link icon on hover */}
-        {project.link_url && (
-          <a
-            href={project.link_url}
-            target="_blank"
-            rel="noreferrer"
-            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-            aria-label={`Open ${title}`}
-          >
-            <span className="glass glass-tint-blue rounded-full p-3 shadow-2xl hover:scale-110 transition-transform">
-              <ExternalLink size={20} />
-            </span>
-          </a>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-6 flex flex-col flex-grow">
-        <h3 className="text-lg font-bold text-navy leading-snug">{title}</h3>
-        {description && (
-          <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light line-clamp-2 flex-grow">{description}</p>
-        )}
-        <div className="mt-4 flex items-center justify-between pt-2">
-          <div className="h-[2px] w-8 bg-brand-yellow group-hover:w-16 transition-all duration-500" />
-          <Link
-            to="/projects/$projectId"
-            params={{ projectId: project.id }}
-            className="w-10 h-10 rounded-full glass glass-tint-blue flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-brand-blue/20"
-            aria-label="View Project Details"
-          >
-            <ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 function ProjectsPage() {
   const { lang } = useI18n();
-  const { service: serviceParam } = Route.useSearch();
-  const [activeTab, setActiveTab] = useState<string | null>(serviceParam || 'all');
-
-  // Scroll reveal
-  useEffect(() => {
-    const apply = () => {
-      document.querySelectorAll<HTMLElement>('.reveal:not(.in)').forEach(el => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight + 100) el.classList.add('in');
-      });
-    };
-    apply();
-    window.addEventListener('scroll', apply, { passive: true });
-    return () => window.removeEventListener('scroll', apply);
-  }, []);
-
-  const { data: services = [], isLoading: servicesLoading } = useQuery({
-    queryKey: ['services'],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase.from('services').select('id, title, title_ar').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-        if (error) return DEFAULT_SERVICES;
-        return data && data.length > 0 ? data : DEFAULT_SERVICES;
-      } catch {
-        return DEFAULT_SERVICES;
-      }
-    },
-  });
-
-  const { data: allProjects = [], isLoading: projsLoading } = useQuery({
-    queryKey: ['projects'],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase.from('projects').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: true });
-        if (error) return DEFAULT_PROJECTS;
-        return data && data.length > 0 ? data : DEFAULT_PROJECTS;
-      } catch {
-        return DEFAULT_PROJECTS;
-      }
-    },
-  });
-
-  const { data: copy } = useQuery({
-    queryKey: ['website_copy'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('website_copy').select('*').eq('id', 1).single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || {};
-    },
-  });
-
-  const filteredProjects = activeTab === 'all' ? allProjects : activeTab ? allProjects.filter((p: any) => p.service_id === activeTab) : [];
-  const isLoading = servicesLoading || projsLoading;
 
   return (
     <div className="relative min-h-screen text-foreground overflow-x-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -227,112 +106,20 @@ function ProjectsPage() {
 
       <Header />
 
-      <main className="relative mx-auto max-w-7xl px-6 pt-32 pb-20 md:pt-40 md:pb-24">
-        {/* Header Container */}
-        <div className="reveal w-full mb-14 flex flex-col md:flex-row md:items-start gap-6">
-          {/* Back Link (Left Column) */}
-          <div className="w-full md:w-48 flex-shrink-0 flex justify-start md:pt-4">
-            <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-brand-blue transition-colors font-medium">
-              {lang === 'ar' ? (
-                <><ArrowRight size={16} /> العودة للرئيسية</>
-              ) : (
-                <><ArrowLeft size={16} /> Back to Home</>
-              )}
-            </Link>
-          </div>
-
-          {/* Title (Center Column) */}
-          <div className="flex-1 text-center flex flex-col items-center justify-center">
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight uppercase">
-              {(() => {
-                const fullTitle = lang === 'ar' ? (copy?.projects_title_ar || 'مشاريعنا.') : (copy?.projects_title_en || 'Our Projects.');
-                const words = fullTitle.split(' ');
-                const lastWord = words.pop();
-                const firstPart = words.join(' ');
-                return (
-                  <>
-                    {firstPart} <span className="text-brand-yellow">{lastWord}</span>
-                  </>
-                );
-              })()}
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto font-light">
-              {lang === 'ar' ? (copy?.projects_sub_ar || 'تصفح أعمالنا عبر جميع المجالات التي نمارسها.') : (copy?.projects_sub_en || 'Browse our portfolio of work across every discipline we practice.')}
-            </p>
-          </div>
-
-          {/* Spacer (Right Column) to keep title perfectly centered */}
-          <div className="hidden md:block w-48 flex-shrink-0"></div>
+      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-16 md:pt-28 md:pb-24">
+        {/* Back Link */}
+        <div className="reveal in w-full mb-2 flex justify-start">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-brand-blue transition-colors font-medium">
+            {lang === 'ar' ? (
+              <><ArrowRight size={16} /> العودة للرئيسية</>
+            ) : (
+              <><ArrowLeft size={16} /> Back to Home</>
+            )}
+          </Link>
         </div>
 
-        {/* Tabs */}
-        {!isLoading && services.length > 0 && (
-          <div className="reveal flex flex-wrap justify-center gap-2 mb-12">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeTab === 'all'
-                  ? 'glass glass-tint-blue glass-glow text-white shadow-lg scale-105'
-                  : 'glass glass-hover text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {lang === 'ar' ? 'الكل' : 'All'}
-            </button>
-            {services.map((svc: any) => {
-              const name = lang === 'ar' && svc.title_ar ? svc.title_ar : svc.title;
-              const isActive = activeTab === svc.id;
-              return (
-                <button
-                  key={svc.id}
-                  onClick={() => setActiveTab(svc.id)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                    isActive
-                      ? 'glass glass-tint-blue glass-glow text-white shadow-lg scale-105'
-                      : 'glass glass-hover text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {name}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Loading skeleton */}
-        {isLoading && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="glass rounded-3xl overflow-hidden animate-pulse">
-                <div className="aspect-video bg-white/5" />
-                <div className="p-6 space-y-3">
-                  <div className="h-5 bg-white/10 rounded-lg w-3/4" />
-                  <div className="h-3 bg-white/5 rounded-lg w-full" />
-                  <div className="h-3 bg-white/5 rounded-lg w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Projects Grid */}
-        {!isLoading && (
-          <>
-            {filteredProjects.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProjects.map((project: any, i: number) => (
-                  <ProjectCard key={project.id} project={project} lang={lang} index={i} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground gap-4">
-                <div className="w-20 h-20 rounded-full glass flex items-center justify-center opacity-30">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 7l9 6 9-6"/></svg>
-                </div>
-                <p className="text-sm">No projects in this category yet.</p>
-              </div>
-            )}
-          </>
-        )}
+        {/* Video Portfolio Showcase */}
+        <VideoPortfolioSection className="!py-4 sm:!py-8" />
       </main>
       <Footer />
     </div>

@@ -26,7 +26,8 @@ export const Route = createFileRoute('/admin/team')({
 });
 
 function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: any) {
-  const [editData, setEditData] = useState({ name: member.name, role: member.role, photo_url: member.photo_url || '' });
+  const photoUrl = member.image_url || member.photo_url || '';
+  const [editData, setEditData] = useState({ name: member.name, role: member.role, image_url: photoUrl });
   const [editing, setEditing] = useState(false);
   const {
     attributes,
@@ -58,7 +59,7 @@ function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: a
         </div>
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">Photo URL</label>
-          <input value={editData.photo_url} onChange={e => setEditData({...editData, photo_url: e.target.value})} className="glass-input w-full rounded-lg px-3 py-2 text-sm" />
+          <input value={editData.image_url} onChange={e => setEditData({...editData, image_url: e.target.value})} className="glass-input w-full rounded-lg px-3 py-2 text-sm" />
         </div>
         <div className="flex gap-2 justify-end">
           <button onClick={() => setEditing(false)} className="p-2 glass-hover rounded-xl text-muted-foreground transition-colors" title="Cancel">
@@ -93,8 +94,8 @@ function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: a
         </div>
         
         <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0 flex items-center justify-center">
-          {member.photo_url ? (
-            <img src={member.photo_url} alt={member.name} className="w-full h-full object-cover pointer-events-none" />
+          {photoUrl ? (
+            <img src={photoUrl} alt={member.name} className="w-full h-full object-cover pointer-events-none" />
           ) : (
             <div className="text-muted-foreground/50 text-[10px] leading-none text-center">No Photo</div>
           )}
@@ -129,7 +130,7 @@ function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: a
 
 function AdminTeam() {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({ name: '', role: '', photo_url: '' });
+  const [formData, setFormData] = useState({ name: '', role: '', image_url: '' });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -158,7 +159,7 @@ function AdminTeam() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
-      setFormData({ name: '', role: '', photo_url: '' });
+      setFormData({ name: '', role: '', image_url: '' });
     }
   });
 
@@ -185,7 +186,7 @@ function AdminTeam() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { name: string; role: string; photo_url: string } }) => {
+    mutationFn: async ({ id, data }: { id: string; data: { name: string; role: string; image_url: string } }) => {
       const { error } = await supabase.from('team').update(data).eq('id', id);
       if (error) throw error;
     },
@@ -270,7 +271,7 @@ function AdminTeam() {
             </div>
             <div>
               <label className="text-sm font-medium mb-1.5 block">Photo URL</label>
-              <input value={formData.photo_url} onChange={e => setFormData({...formData, photo_url: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://example.com/photo.jpg" />
+              <input value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://example.com/photo.jpg" />
             </div>
             <button 
               onClick={handleAdd} 

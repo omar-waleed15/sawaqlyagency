@@ -16,6 +16,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects_.$projectId'
+import { Route as AdminVideoPortfolioRouteImport } from './routes/admin.video-portfolio'
 import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
@@ -58,6 +59,11 @@ const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
   id: '/projects_/$projectId',
   path: '/projects/$projectId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminVideoPortfolioRoute = AdminVideoPortfolioRouteImport.update({
+  id: '/video-portfolio',
+  path: '/video-portfolio',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminTeamRoute = AdminTeamRouteImport.update({
   id: '/team',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/team': typeof AdminTeamRoute
+  '/admin/video-portfolio': typeof AdminVideoPortfolioRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/team': typeof AdminTeamRoute
+  '/admin/video-portfolio': typeof AdminVideoPortfolioRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/team': typeof AdminTeamRoute
+  '/admin/video-portfolio': typeof AdminVideoPortfolioRoute
   '/projects_/$projectId': typeof ProjectsProjectIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/admin/services'
     | '/admin/settings'
     | '/admin/team'
+    | '/admin/video-portfolio'
     | '/projects/$projectId'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/admin/services'
     | '/admin/settings'
     | '/admin/team'
+    | '/admin/video-portfolio'
     | '/projects/$projectId'
     | '/admin'
   id:
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/admin/services'
     | '/admin/settings'
     | '/admin/team'
+    | '/admin/video-portfolio'
     | '/projects_/$projectId'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -253,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/video-portfolio': {
+      id: '/admin/video-portfolio'
+      path: '/video-portfolio'
+      fullPath: '/admin/video-portfolio'
+      preLoaderRoute: typeof AdminVideoPortfolioRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/team': {
       id: '/admin/team'
       path: '/team'
@@ -313,6 +332,7 @@ interface AdminRouteChildren {
   AdminServicesRoute: typeof AdminServicesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTeamRoute: typeof AdminTeamRoute
+  AdminVideoPortfolioRoute: typeof AdminVideoPortfolioRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -324,6 +344,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminServicesRoute: AdminServicesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTeamRoute: AdminTeamRoute,
+  AdminVideoPortfolioRoute: AdminVideoPortfolioRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

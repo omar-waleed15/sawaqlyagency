@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Loader2, GripVertical, Edit2, Check, X as XIcon, Image, ArrowUp, ArrowDown, Type, Video, LayoutList } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { VideoUploader } from '../components/admin/VideoUploader';
+import { ImageUploader } from '../components/admin/ImageUploader';
 import {
   DndContext,
   closestCenter,
@@ -364,11 +366,10 @@ function AdminProjects() {
                   </span>
                   <span className="text-[10px] text-muted-foreground uppercase font-semibold">Service Card Thumbnail</span>
                 </div>
-                <input
+                <ImageUploader
                   value={projForm.image_url}
-                  onChange={e => setProjForm({ ...projForm, image_url: e.target.value })}
-                  className="glass-input w-full rounded-lg px-3 py-2 text-sm"
-                  placeholder="https://... (Cover Image URL)"
+                  onChange={url => setProjForm({ ...projForm, image_url: url })}
+                  placeholder="Upload cover image or paste URL..."
                 />
               </div>
 
@@ -389,11 +390,10 @@ function AdminProjects() {
                       <Trash2 size={14} />
                     </button>
                   </div>
-                  <input
+                  <ImageUploader
                     value={block.url || ''}
-                    onChange={e => updateBlock(block.id, { url: e.target.value })}
-                    className="glass-input w-full rounded-lg px-3 py-2 text-sm"
-                    placeholder="https://... (Additional Carousel Image URL)"
+                    onChange={url => updateBlock(block.id, { url })}
+                    placeholder="Upload slide image or paste URL..."
                   />
                 </div>
               ))}
@@ -452,15 +452,14 @@ function AdminProjects() {
                     )}
                     {block.type === 'video' && (
                       <div className="space-y-3">
-                        <div className="space-y-2">
-                          <input value={block.url} onChange={e => updateBlock(block.id, { url: e.target.value })} className="glass-input w-full rounded-lg px-3 py-2 text-sm" placeholder="Video URL (YouTube, Vimeo, MP4)..." />
-                          <select value={block.aspect || '16/9'} onChange={e => updateBlock(block.id, { aspect: e.target.value as any })} className="glass-input w-full rounded-lg px-3 py-2 text-sm">
-                            <option value="16/9" className="bg-black text-white">Horizontal (16:9)</option>
-                            <option value="9/16" className="bg-black text-white">Vertical (9:16)</option>
-                            <option value="1/1" className="bg-black text-white">Square (1:1)</option>
-                            <option value="4/3" className="bg-black text-white">Standard (4:3)</option>
-                          </select>
-                        </div>
+                        <VideoUploader
+                          value={block.url || ''}
+                          onChange={url => updateBlock(block.id, { url })}
+                          aspect={block.aspect || '16/9'}
+                          onAspectChange={aspect => updateBlock(block.id, { aspect })}
+                          showAspectSelector={true}
+                          label="Project Video"
+                        />
                       </div>
                     )}
                   </div>

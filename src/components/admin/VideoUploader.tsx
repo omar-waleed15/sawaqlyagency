@@ -1,0 +1,336 @@
+import React, { useState, useRef } from 'react';
+import {
+  Upload,
+  Video as VideoIcon,
+  Link as LinkIcon,
+  Loader2,
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  FileVideo,
+  RefreshCw,
+  Play
+} from 'lucide-react';
+import { uploadVideoFile } from '../../lib/storage';
+
+interface VideoUploaderProps {
+  value: string;
+  onChange: (url: string) => void;
+  aspect?: '16/9' | '9/16' | '1/1' | '4/3' | 'auto';
+  onAspectChange?: (aspect: '16/9' | '9/16' | '1/1' | '4/3') => void;
+  showAspectSelector?: boolean;
+  label?: string;
+  defaultVertical?: boolean;
+}
+
+export function VideoUploader({
+  value,
+  onChange,
+  aspect = '16/9',
+  onAspectChange,
+  showAspectSelector = true,
+  label = 'Video',
+  defaultVertical = false,
+}: VideoUploaderProps) {
+  const [activeTab, setActiveTab] = useState<'upload' | 'link'>('upload');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgressText, setUploadProgressText] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const isSupabaseHosted = Boolean(value && (value.includes('supabase.co') || value.includes('/storage/')));
+  const isYouTubeOrSocial = Boolean(
+    value && (
+      value.includes('youtube.com') ||
+      value.includes('youtu.be') ||
+      value.includes('vimeo.com') ||
+      value.includes('tiktok.com') ||
+      value.includes('instagram.com')
+    )
+  );
+
+  const handleFileSelect = async (file: File) => {
+    if (!file) return;
+    setIsUploading(true);
+    setErrorMessage(null);
+    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+    setUploadProgressText(`Uploading "${file.name}" (${sizeMb} MB)...`);
+
+    try {
+      const publicUrl = await uploadVideoFile(file);
+      onChange(publicUrl);
+    } catch (err: any) {
+      console.error('Video upload error:', err);
+      setErrorMessage(err.message || 'Failed to upload video file. Please try again.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgressText('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileSelect(file);
+    }
+  };
+
+  // Resolve aspect ratio for video preview styling
+  const aspectClass = aspect === '9/16' ? 'aspect-[9/16] max-w-[220px]' :
+                      aspect === '1/1' ? 'aspect-square max-w-[320px]' :
+                      aspect === '4/3' ? 'aspect-[4/3] max-w-[380px]' :
+                      'aspect-video w-full';
+
+  return (
+    <div className="space-y-3">
+      {/* Header & Tabs */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <VideoIcon size={14} className="text-brand-blue" />
+          {label}
+        </label>
+
+        {/* Tab switcher: Direct Upload vs Link */}
+        <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-0.5 text-xs">
+          <button
+            type="button"
+            onClick={() => setActiveTab('upload')}
+            className={`px-3 py-1 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+              activeTab === 'upload'
+                ? 'bg-brand-blue text-white shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Upload size={12} />
+            Direct Video Upload
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('link')}
+            className={`px-3 py-1 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+              activeTab === 'link'
+                ? 'bg-brand-blue text-white shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <LinkIcon size={12} />
+            Paste Link
+          </button>
+        </div>
+      </div>
+
+      {/* Error Alert */}
+      {errorMessage && (
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-destructive/15 border border-destructive/30 text-destructive text-xs">
+          <AlertCircle size={16} className="shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-semibold">Upload failed</div>
+            <div>{errorMessage}</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorMessage(null)}
+            className="text-destructive/70 hover:text-destructive font-bold text-xs"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Upload Zone (Tab: Upload) */}
+      {activeTab === 'upload' && (
+        <div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFileSelect(file);
+            }}
+            accept="video/mp4,video/webm,video/quicktime,video/mkv,video/x-m4v,video/*"
+            className="hidden"
+          />
+
+          {!value ? (
+            // Empty Dropzone
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-3 ${
+                isDragging
+                  ? 'border-brand-blue bg-brand-blue/10 scale-[1.01]'
+                  : 'border-white/15 bg-white/[0.02] hover:bg-white/[0.06] hover:border-brand-blue/50'
+              }`}
+            >
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <Loader2 size={32} className="animate-spin text-brand-blue" />
+                  <div className="text-sm font-semibold text-foreground">
+                    Uploading directly to Supabase Storage...
+                  </div>
+                  <div className="text-xs text-muted-foreground font-mono">
+                    {uploadProgressText}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="w-12 h-12 rounded-2xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue shadow-inner">
+                    <Upload size={22} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Click to choose video or drag & drop here
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      MP4, WebM, MOV (uploaded directly to cloud storage)
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-brand-blue/20 text-brand-blue border border-brand-blue/30 mt-1">
+                    <FileVideo size={13} /> Select Video File
+                  </span>
+                </>
+              )}
+            </div>
+          ) : (
+            // Video Already Uploaded / Selected View
+            <div className="glass rounded-2xl p-4 border border-white/10 space-y-3 bg-white/[0.02]">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-500" />
+                  <span className="text-xs font-semibold text-emerald-500">
+                    {isSupabaseHosted ? 'Direct Cloud Hosted Video' : 'Video Ready'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={isUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="glass glass-hover text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-brand-blue border border-brand-blue/30"
+                  >
+                    {isUploading ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                    Replace Video
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onChange('')}
+                    className="glass glass-hover text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 size={13} />
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              {/* Video Player Preview */}
+              <div className={`mx-auto rounded-xl overflow-hidden bg-black/80 border border-white/15 relative shadow-lg ${aspectClass}`}>
+                {isYouTubeOrSocial ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+                    <Play size={28} className="text-brand-blue mb-1" />
+                    <span className="text-xs text-muted-foreground truncate max-w-full px-4">{value}</span>
+                  </div>
+                ) : (
+                  <video
+                    src={value}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
+
+              <div className="text-[11px] text-muted-foreground font-mono truncate px-1" title={value}>
+                URL: {value}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Paste Link Tab */}
+      {activeTab === 'link' && (
+        <div className="space-y-3">
+          <div className="relative">
+            <input
+              type="text"
+              value={value || ''}
+              onChange={(e) => onChange(e.target.value)}
+              className="glass-input w-full rounded-xl px-4 py-2.5 text-sm"
+              placeholder="Paste video URL (e.g. YouTube, Vimeo, direct MP4 link)..."
+            />
+            {value && (
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {value && (
+            <div className={`mx-auto rounded-xl overflow-hidden bg-black/80 border border-white/15 relative shadow-lg ${aspectClass}`}>
+              <video
+                src={value}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-contain"
+                onError={() => {
+                  // Fallback for youtube or links that don't load in <video> tag
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Aspect Ratio Selector (if requested) */}
+      {showAspectSelector && onAspectChange && (
+        <div className="flex items-center gap-3 pt-1">
+          <span className="text-xs text-muted-foreground font-medium shrink-0">Aspect Ratio:</span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {(['16/9', '9/16', '1/1', '4/3'] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => onAspectChange(r)}
+                className={`text-xs px-2.5 py-1 rounded-lg font-mono font-medium transition-all ${
+                  aspect === r
+                    ? 'bg-brand-blue text-white shadow-sm'
+                    : 'glass glass-hover text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {r === '16/9' ? '16:9 (Horizontal)' :
+                 r === '9/16' ? '9:16 (Vertical Reel)' :
+                 r === '1/1' ? '1:1 (Square)' : '4:3 (Classic)'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

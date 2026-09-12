@@ -29,6 +29,17 @@ const translations = {
     ar: "موثوق من فرق تقدّم أعمالاً جريئة",
   },
 
+  // Video Portfolio
+  "portfolio.tag": { en: "TRENDY 🔥", ar: "الأكثر رواجاً 🔥" },
+  "portfolio.title": { en: "The Product Behind Millions Of Views", ar: "المحتوى وراء ملايين المشاهدات" },
+  "portfolio.sub": {
+    en: "Over 12M User On Social Media. Everyone's Talking About It.",
+    ar: "أكثر من 12 مليون تفاعل على وسائل التواصل. الجميع يتحدث عن أعمالنا الإبداعية.",
+  },
+  "portfolio.cta": { en: "Explore Now", ar: "استكشف الآن" },
+  "portfolio.loveIt": { en: "Love It", ar: "أعجبني جداً" },
+
+
   // Services
   "services.title": { en: "What We Are Doing?", ar: "ماذا نفعل؟" },
   "services.sub": {

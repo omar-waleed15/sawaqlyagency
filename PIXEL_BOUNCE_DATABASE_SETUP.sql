@@ -26,6 +26,12 @@ CREATE TABLE IF NOT EXISTS public.website_copy (
   projects_title_ar TEXT,
   projects_sub_en TEXT,
   projects_sub_ar TEXT,
+  portfolio_title_en TEXT,
+  portfolio_title_ar TEXT,
+  portfolio_sub_en TEXT,
+  portfolio_sub_ar TEXT,
+  portfolio_cta_en TEXT,
+  portfolio_cta_ar TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -167,7 +173,25 @@ CREATE TABLE IF NOT EXISTS public.inquiries (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. ROW LEVEL SECURITY (RLS) POLICIES
+-- 9. TABLE: video_reels
+CREATE TABLE IF NOT EXISTS public.video_reels (
+  id TEXT PRIMARY KEY,
+  title_en TEXT,
+  title_ar TEXT,
+  category_en TEXT,
+  category_ar TEXT,
+  views TEXT,
+  view_count_num BIGINT DEFAULT 1000000,
+  likes TEXT,
+  shares TEXT,
+  poster_url TEXT,
+  video_url TEXT,
+  duration TEXT,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.website_copy ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.brands ENABLE ROW LEVEL SECURITY;
@@ -175,6 +199,7 @@ ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.video_reels ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if re-running
 DROP POLICY IF EXISTS "Public Read website_copy" ON public.website_copy;
@@ -183,6 +208,7 @@ DROP POLICY IF EXISTS "Public Read brands" ON public.brands;
 DROP POLICY IF EXISTS "Public Read services" ON public.services;
 DROP POLICY IF EXISTS "Public Read team" ON public.team;
 DROP POLICY IF EXISTS "Public Read projects" ON public.projects;
+DROP POLICY IF EXISTS "Public Read video_reels" ON public.video_reels;
 DROP POLICY IF EXISTS "Public Insert inquiries" ON public.inquiries;
 DROP POLICY IF EXISTS "Admin All website_copy" ON public.website_copy;
 DROP POLICY IF EXISTS "Admin All social_media" ON public.social_media;
@@ -191,6 +217,7 @@ DROP POLICY IF EXISTS "Admin All services" ON public.services;
 DROP POLICY IF EXISTS "Admin All team" ON public.team;
 DROP POLICY IF EXISTS "Admin All projects" ON public.projects;
 DROP POLICY IF EXISTS "Admin All inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Admin All video_reels" ON public.video_reels;
 
 -- Create Public Read Policies
 CREATE POLICY "Public Read website_copy" ON public.website_copy FOR SELECT USING (true);
@@ -199,6 +226,7 @@ CREATE POLICY "Public Read brands" ON public.brands FOR SELECT USING (true);
 CREATE POLICY "Public Read services" ON public.services FOR SELECT USING (true);
 CREATE POLICY "Public Read team" ON public.team FOR SELECT USING (true);
 CREATE POLICY "Public Read projects" ON public.projects FOR SELECT USING (true);
+CREATE POLICY "Public Read video_reels" ON public.video_reels FOR SELECT USING (true);
 
 -- Create Public Insert for Contact & Career Forms
 CREATE POLICY "Public Insert inquiries" ON public.inquiries FOR INSERT WITH CHECK (true);
@@ -211,9 +239,21 @@ CREATE POLICY "Admin All services" ON public.services FOR ALL USING (true);
 CREATE POLICY "Admin All team" ON public.team FOR ALL USING (true);
 CREATE POLICY "Admin All projects" ON public.projects FOR ALL USING (true);
 CREATE POLICY "Admin All inquiries" ON public.inquiries FOR ALL USING (true);
+CREATE POLICY "Admin All video_reels" ON public.video_reels FOR ALL USING (true);
 
 -- Storage bucket access policies
 DROP POLICY IF EXISTS "Public Access CVS" ON storage.objects;
 DROP POLICY IF EXISTS "Public Upload CVS" ON storage.objects;
 CREATE POLICY "Public Access CVS" ON storage.objects FOR SELECT USING (bucket_id = 'cvs');
 CREATE POLICY "Public Upload CVS" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'cvs');
+
+-- Video Portfolio bucket and policies
+INSERT INTO storage.buckets (id, name, public) VALUES ('video-portfolio', 'video-portfolio', true) ON CONFLICT (id) DO UPDATE SET public = true;
+DROP POLICY IF EXISTS "Public Access Video Portfolio" ON storage.objects;
+DROP POLICY IF EXISTS "Public Upload Video Portfolio" ON storage.objects;
+DROP POLICY IF EXISTS "Public Update Video Portfolio" ON storage.objects;
+DROP POLICY IF EXISTS "Public Delete Video Portfolio" ON storage.objects;
+CREATE POLICY "Public Access Video Portfolio" ON storage.objects FOR SELECT USING (bucket_id = 'video-portfolio');
+CREATE POLICY "Public Upload Video Portfolio" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'video-portfolio');
+CREATE POLICY "Public Update Video Portfolio" ON storage.objects FOR UPDATE USING (bucket_id = 'video-portfolio');
+CREATE POLICY "Public Delete Video Portfolio" ON storage.objects FOR DELETE USING (bucket_id = 'video-portfolio');
