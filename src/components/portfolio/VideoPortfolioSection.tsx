@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Video,
+  Loader2,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ import {
   fetchVideoReels,
   DEFAULT_PORTFOLIO_COPY,
 } from "../../lib/videoPortfolioData";
+import { ClientCaseStudySection } from "./ClientCaseStudySection";
 
 export default function VideoPortfolioSection({ className = "" }: { className?: string }) {
   const { lang, t } = useI18n();
@@ -77,8 +79,31 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
     };
   }, [queryClient]);
 
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isInView, setIsInView] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  // Lazy streaming: only stream and buffer video when in viewport
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") {
+      setIsInView(true);
+      return;
+    }
+    const el = sectionRef.current;
+    if (!el) {
+      setIsInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.08 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const currentIndex = activeReel ? Math.max(0, activeReelsList.findIndex((r) => r.id === activeReel.id)) : 0;
 
@@ -126,10 +151,10 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
     switchReel(reel, dir);
   };
 
-  // Play/pause video when active reel changes or toggle state changes
+  // Play/pause video when active reel changes, toggle state changes, or enters/leaves viewport
   useEffect(() => {
     if (videoRef.current && activeReel) {
-      if (isPlaying) {
+      if (isPlaying && isInView) {
         videoRef.current.play().catch(() => {
           if (videoRef.current) {
             videoRef.current.muted = true;
@@ -141,7 +166,7 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
         videoRef.current.pause();
       }
     }
-  }, [activeReel, isPlaying]);
+  }, [activeReel, isPlaying, isInView]);
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
@@ -226,7 +251,7 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
   const displayCta = lang === 'ar' ? copy.portfolio_cta_ar : copy.portfolio_cta_en;
 
   return (
-    <section id="portfolio-reels" className={`relative py-14 md:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto reveal in select-none overflow-x-clip ${className}`}>
+    <section ref={sectionRef} id="portfolio-reels" className={`relative py-14 md:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto reveal in select-none overflow-x-clip ${className}`}>
       <style>{`
         @keyframes slideRowNext {
           0% { transform: translateX(65px); opacity: 0.55; }
@@ -406,15 +431,19 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
                     <img
                       src={reel.posterUrl}
                       alt={reel.titleEn}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                     />
                   ) : (
-                    <video
-                      src={reel.videoUrl}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
-                      muted
-                      preload="metadata"
-                    />
+                    <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-gradient-to-br from-slate-900 via-brand-blue/20 to-slate-950 pointer-events-none">
+                      <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-1.5 text-white/90 group-hover:scale-110 transition-transform">
+                        <Play size={13} fill="currentColor" className="translate-x-0.5" />
+                      </div>
+                      <span className="text-[10px] font-semibold text-white/80 line-clamp-2 px-1">
+                        {lang === "ar" ? (reel.titleAr || reel.titleEn) : (reel.titleEn || reel.titleAr)}
+                      </span>
+                    </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 opacity-80 group-hover:opacity-60 transition-opacity pointer-events-none" />
                 </div>
@@ -459,6 +488,7 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
                 onTogglePlay={togglePlay}
                 onToggleMute={toggleMute}
                 lang={lang}
+                isInView={isInView}
               />
             </div>
           </div>
@@ -488,15 +518,19 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
                     <img
                       src={reel.posterUrl}
                       alt={reel.titleEn}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                     />
                   ) : (
-                    <video
-                      src={reel.videoUrl}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
-                      muted
-                      preload="metadata"
-                    />
+                    <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-gradient-to-br from-slate-900 via-brand-blue/20 to-slate-950 pointer-events-none">
+                      <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-1.5 text-white/90 group-hover:scale-110 transition-transform">
+                        <Play size={13} fill="currentColor" className="translate-x-0.5" />
+                      </div>
+                      <span className="text-[10px] font-semibold text-white/80 line-clamp-2 px-1">
+                        {lang === "ar" ? (reel.titleAr || reel.titleEn) : (reel.titleEn || reel.titleAr)}
+                      </span>
+                    </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 opacity-80 group-hover:opacity-60 transition-opacity pointer-events-none" />
                 </div>
@@ -524,9 +558,14 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
                     }`}
                   >
                     {reel.posterUrl ? (
-                      <img src={reel.posterUrl} alt={reel.titleEn} className="w-full h-full object-cover" />
+                      <img src={reel.posterUrl} alt={reel.titleEn} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     ) : (
-                      <video src={reel.videoUrl} className="w-full h-full object-cover" muted preload="metadata" />
+                      <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-gradient-to-br from-slate-900 via-brand-blue/20 to-slate-950">
+                        <Play size={13} fill="currentColor" className="text-white/80 mb-1" />
+                        <span className="text-[9px] font-medium text-white/80 line-clamp-1">
+                          {lang === "ar" ? (reel.titleAr || reel.titleEn) : (reel.titleEn || reel.titleAr)}
+                        </span>
+                      </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   </div>
@@ -575,18 +614,13 @@ export default function VideoPortfolioSection({ className = "" }: { className?: 
           </div>
         )}
 
-        {/* CTA Pill Button: Explore Now */}
-        <div className="mt-8 flex justify-center relative z-30">
-          <Link
-            to="/"
-            hash="contact"
-            className="glass glass-tint-blue glass-hover glass-glow inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 sm:px-8 sm:py-3.5 text-xs sm:text-sm font-bold whitespace-nowrap tracking-wide uppercase transition-all cursor-pointer"
-          >
-            <span>{displayCta || t("portfolio.cta") || "Explore Now"}</span>
-            <ArrowRight size={14} className={lang === "ar" ? "rotate-180" : ""} />
-          </Link>
-        </div>
-
+        {/* Dynamic Client Case Study Section: Client Name & Growth, Before/After Meta Photos, Social Designs */}
+        {activeReel && (
+          <ClientCaseStudySection
+            reel={activeReel}
+            lang={lang}
+          />
+        )}
       </div>
     </section>
   );
@@ -602,6 +636,7 @@ function AstronautHandPhone({
   onTogglePlay,
   onToggleMute,
   lang = "en",
+  isInView = true,
 }: {
   reel: ReelItem | null;
   isExiting?: boolean;
@@ -611,7 +646,10 @@ function AstronautHandPhone({
   onTogglePlay?: () => void;
   onToggleMute?: () => void;
   lang?: string;
+  isInView?: boolean;
 }) {
+  const [isBuffering, setIsBuffering] = useState(false);
+
   return (
     <div className="relative w-full aspect-[896/1200]">
       <img
@@ -636,18 +674,39 @@ function AstronautHandPhone({
       >
         {reel ? (
           <>
-            {/* HTML5 Video Player */}
-            <video
-              ref={isExiting ? undefined : videoRef}
-              key={reel.videoUrl}
-              src={reel.videoUrl}
-              poster={reel.posterUrl || undefined}
-              autoPlay
-              loop
-              playsInline
-              muted={isExiting ? true : isMuted}
-              className="w-full h-full object-cover pointer-events-none"
-            />
+            {/* If exiting, show lightweight image snapshot to prevent hardware decoder contention */}
+            {isExiting ? (
+              reel.posterUrl ? (
+                <img
+                  src={reel.posterUrl}
+                  alt=""
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+              ) : (
+                <div className="w-full h-full bg-slate-950" />
+              )
+            ) : (
+              /* Active Stream Video Player - Only ONE active video in the entire DOM */
+              <video
+                ref={videoRef}
+                key={reel.videoUrl}
+                src={reel.videoUrl}
+                poster={reel.posterUrl || undefined}
+                autoPlay={isInView && isPlaying}
+                loop
+                playsInline
+                muted={isMuted}
+                preload={isInView ? "auto" : "none"}
+                onLoadStart={() => {
+                  if (isInView && isPlaying) setIsBuffering(true);
+                }}
+                onWaiting={() => setIsBuffering(true)}
+                onCanPlay={() => setIsBuffering(false)}
+                onPlaying={() => setIsBuffering(false)}
+                onError={() => setIsBuffering(false)}
+                className="w-full h-full object-cover pointer-events-none"
+              />
+            )}
 
             {/* iPhone 17 Pro Dynamic Island */}
             <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-3.5 sm:h-4 bg-black rounded-full z-30 pointer-events-none flex items-center justify-end px-1.5 shadow-sm">
@@ -656,6 +715,15 @@ function AstronautHandPhone({
 
             {/* Screen Glare reflection overlay */}
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none z-20" />
+
+            {/* Buffering Indicator */}
+            {!isExiting && isBuffering && isPlaying && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center z-25 pointer-events-none transition-opacity">
+                <div className="w-10 h-10 rounded-full bg-black/75 border border-white/20 flex items-center justify-center shadow-lg">
+                  <Loader2 size={18} className="animate-spin text-brand-yellow" />
+                </div>
+              </div>
+            )}
 
             {/* Center Play/Pause tap feedback overlay */}
             {!isExiting && !isPlaying && (

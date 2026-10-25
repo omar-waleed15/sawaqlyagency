@@ -1,4 +1,4 @@
-import { MOCK_REELS, ReelItem } from '../data/mockReelsData';
+import { MOCK_REELS, ReelItem, DEFAULT_CLIENT_CASE_STUDIES } from '../data/mockReelsData';
 import { supabase } from './supabase';
 
 export interface VideoPortfolioCopy {
@@ -88,20 +88,36 @@ export async function fetchVideoReels(): Promise<ReelItem[]> {
     if (!error && data) {
       return data
         .filter((item: any) => !isLegacyMockId(item.id))
-        .map((item: any) => ({
-          id: item.id,
-          titleEn: item.title_en || item.titleEn || '',
-          titleAr: item.title_ar || item.titleAr || '',
-          categoryEn: item.category_en || item.categoryEn || 'Video',
-          categoryAr: item.category_ar || item.categoryAr || 'فيديو',
-          views: item.views || '1M',
-          viewCountNum: item.view_count_num || item.viewCountNum || 1000000,
-          likes: item.likes || '10K',
-          shares: item.shares || '1K',
-          posterUrl: item.poster_url || item.posterUrl || '',
-          videoUrl: item.video_url || item.videoUrl || '',
-          duration: item.duration || '0:15',
-        }));
+        .map((item: any) => {
+          const defaultCs = DEFAULT_CLIENT_CASE_STUDIES[item.id] || {};
+          return {
+            id: item.id,
+            titleEn: item.title_en || item.titleEn || '',
+            titleAr: item.title_ar || item.titleAr || '',
+            categoryEn: item.category_en || item.categoryEn || 'Video',
+            categoryAr: item.category_ar || item.categoryAr || 'فيديو',
+            views: item.views || '1M',
+            viewCountNum: item.view_count_num || item.viewCountNum || 1000000,
+            likes: item.likes || '10K',
+            shares: item.shares || '1K',
+            posterUrl: item.poster_url || item.posterUrl || '',
+            videoUrl: item.video_url || item.videoUrl || '',
+            duration: item.duration || '0:15',
+
+            // Case Study Fields
+            clientNameEn: item.client_name_en ?? item.clientNameEn ?? defaultCs.clientNameEn ?? '',
+            clientNameAr: item.client_name_ar ?? item.clientNameAr ?? defaultCs.clientNameAr ?? '',
+            growthDescEn: item.growth_desc_en ?? item.growthDescEn ?? defaultCs.growthDescEn ?? '',
+            growthDescAr: item.growth_desc_ar ?? item.growthDescAr ?? defaultCs.growthDescAr ?? '',
+            metaBeforeUrl: item.meta_before_url ?? item.metaBeforeUrl ?? defaultCs.metaBeforeUrl ?? '',
+            metaAfterUrl: item.meta_after_url ?? item.metaAfterUrl ?? defaultCs.metaAfterUrl ?? '',
+            metaBeforeTagEn: item.meta_before_tag_en ?? item.metaBeforeTagEn ?? defaultCs.metaBeforeTagEn ?? 'Before Sawaqly',
+            metaBeforeTagAr: item.meta_before_tag_ar ?? item.metaBeforeTagAr ?? defaultCs.metaBeforeTagAr ?? 'قبل سـواقلي',
+            metaAfterTagEn: item.meta_after_tag_en ?? item.metaAfterTagEn ?? defaultCs.metaAfterTagEn ?? 'After Sawaqly',
+            metaAfterTagAr: item.meta_after_tag_ar ?? item.metaAfterTagAr ?? defaultCs.metaAfterTagAr ?? 'بعد سـواقلي',
+            socialDesigns: item.social_designs ?? item.socialDesigns ?? defaultCs.socialDesigns ?? [],
+          };
+        });
     }
   } catch (err) {
     console.warn("Supabase fetch failed for video reels, using fallback:", err);
@@ -113,7 +129,25 @@ export async function fetchVideoReels(): Promise<ReelItem[]> {
     if (local) {
       const parsed = JSON.parse(local);
       if (Array.isArray(parsed)) {
-        return parsed.filter((item: any) => !isLegacyMockId(item.id));
+        return parsed
+          .filter((item: any) => !isLegacyMockId(item.id))
+          .map((item: any) => {
+            const defaultCs = DEFAULT_CLIENT_CASE_STUDIES[item.id] || {};
+            return {
+              ...item,
+              clientNameEn: item.clientNameEn ?? defaultCs.clientNameEn ?? '',
+              clientNameAr: item.clientNameAr ?? defaultCs.clientNameAr ?? '',
+              growthDescEn: item.growthDescEn ?? defaultCs.growthDescEn ?? '',
+              growthDescAr: item.growthDescAr ?? defaultCs.growthDescAr ?? '',
+              metaBeforeUrl: item.metaBeforeUrl ?? defaultCs.metaBeforeUrl ?? '',
+              metaAfterUrl: item.metaAfterUrl ?? defaultCs.metaAfterUrl ?? '',
+              metaBeforeTagEn: item.metaBeforeTagEn ?? defaultCs.metaBeforeTagEn ?? 'Before Sawaqly',
+              metaBeforeTagAr: item.metaBeforeTagAr ?? defaultCs.metaBeforeTagAr ?? 'قبل سـواقلي',
+              metaAfterTagEn: item.metaAfterTagEn ?? defaultCs.metaAfterTagEn ?? 'After Sawaqly',
+              metaAfterTagAr: item.metaAfterTagAr ?? defaultCs.metaAfterTagAr ?? 'بعد سـواقلي',
+              socialDesigns: item.socialDesigns ?? defaultCs.socialDesigns ?? [],
+            };
+          });
       }
     }
   } catch {}
@@ -152,8 +186,39 @@ export async function saveVideoReels(reels: ReelItem[]): Promise<void> {
       video_url: r.videoUrl,
       duration: r.duration,
       sort_order: index,
+      client_name_en: r.clientNameEn || null,
+      client_name_ar: r.clientNameAr || null,
+      growth_desc_en: r.growthDescEn || null,
+      growth_desc_ar: r.growthDescAr || null,
+      meta_before_url: r.metaBeforeUrl || null,
+      meta_after_url: r.metaAfterUrl || null,
+      meta_before_tag_en: r.metaBeforeTagEn || 'Before Sawaqly',
+      meta_before_tag_ar: r.metaBeforeTagAr || 'قبل سـواقلي',
+      meta_after_tag_en: r.metaAfterTagEn || 'After Sawaqly',
+      meta_after_tag_ar: r.metaAfterTagAr || 'بعد سـواقلي',
+      social_designs: r.socialDesigns || [],
     }));
-    await supabase.from('video_reels').upsert(dbPayload);
+
+    const { error: upsertErr } = await supabase.from('video_reels').upsert(dbPayload);
+    if (upsertErr && (upsertErr.message?.includes('column') || (upsertErr as any).code === '42703')) {
+      console.warn("Case study columns not yet in Supabase SQL schema, saving base payload:", upsertErr.message);
+      const basePayload = reels.map((r, index) => ({
+        id: r.id,
+        title_en: r.titleEn,
+        title_ar: r.titleAr,
+        category_en: r.categoryEn,
+        category_ar: r.categoryAr,
+        views: r.views,
+        view_count_num: r.viewCountNum,
+        likes: r.likes,
+        shares: r.shares,
+        poster_url: r.posterUrl,
+        video_url: r.videoUrl,
+        duration: r.duration,
+        sort_order: index,
+      }));
+      await supabase.from('video_reels').upsert(basePayload);
+    }
   } catch (err) {
     console.warn("Supabase upsert failed for video reels:", err);
   }

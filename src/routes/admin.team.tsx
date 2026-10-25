@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Loader2, GripHorizontal, Pencil, Check, X } from 'lucide-react';
+import { Plus, Trash2, Loader2, GripHorizontal, Pencil, Check, X, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { ImageUploader } from '../components/admin/ImageUploader';
 import {
   DndContext,
   closestCenter,
@@ -58,8 +59,13 @@ function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: a
           </div>
         </div>
         <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Photo URL</label>
-          <input value={editData.image_url} onChange={e => setEditData({...editData, image_url: e.target.value})} className="glass-input w-full rounded-lg px-3 py-2 text-sm" />
+          <ImageUploader
+            value={editData.image_url}
+            onChange={url => setEditData({ ...editData, image_url: url })}
+            label="Photo"
+            placeholder="Upload photo or paste URL..."
+            compact
+          />
         </div>
         <div className="flex gap-2 justify-end">
           <button onClick={() => setEditing(false)} className="p-2 glass-hover rounded-xl text-muted-foreground transition-colors" title="Cancel">
@@ -131,6 +137,7 @@ function SortableTeamItem({ member, onDelete, isDeleting, onEdit, isEditing }: a
 function AdminTeam() {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ name: '', role: '', image_url: '' });
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -154,12 +161,23 @@ function AdminTeam() {
 
   const addMutation = useMutation({
     mutationFn: async (newMember: typeof formData) => {
-      const { error } = await supabase.from('team').insert([{ ...newMember, sort_order: team.length }]);
+      const url = newMember.image_url?.trim() || '';
+      const { error } = await supabase.from('team').insert([{
+        name: newMember.name.trim(),
+        role: newMember.role.trim(),
+        image_url: url,
+        photo_url: url,
+        sort_order: team.length
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
       setFormData({ name: '', role: '', image_url: '' });
+      setErrorMsg(null);
+    },
+    onError: (err: any) => {
+      setErrorMsg(err.message || 'Failed to add team member');
     }
   });
 
@@ -170,6 +188,10 @@ function AdminTeam() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
+      setErrorMsg(null);
+    },
+    onError: (err: any) => {
+      setErrorMsg(err.message || 'Failed to delete team member');
     }
   });
 
@@ -182,21 +204,35 @@ function AdminTeam() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
+      setErrorMsg(null);
+    },
+    onError: (err: any) => {
+      setErrorMsg(err.message || 'Failed to update order');
     }
   });
 
   const editMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: { name: string; role: string; image_url: string } }) => {
-      const { error } = await supabase.from('team').update(data).eq('id', id);
+      const url = data.image_url?.trim() || '';
+      const { error } = await supabase.from('team').update({
+        name: data.name.trim(),
+        role: data.role.trim(),
+        image_url: url,
+        photo_url: url,
+      }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team'] });
+      setErrorMsg(null);
+    },
+    onError: (err: any) => {
+      setErrorMsg(err.message || 'Failed to update team member');
     }
   });
 
   const handleAdd = () => {
-    if (!formData.name || !formData.role) return;
+    if (!formData.name.trim() || !formData.role.trim()) return;
     addMutation.mutate(formData);
   };
 
@@ -224,6 +260,16 @@ function AdminTeam() {
           <p className="text-muted-foreground font-light mt-1">Manage the people behind the work.</p>
         </div>
       </div>
+
+      {errorMsg && (
+        <div className="mb-6 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={16} className="shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+          <button onClick={() => setErrorMsg(null)} className="hover:opacity-75 font-bold">✕</button>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="glass glass-strong rounded-3xl p-6">
@@ -270,12 +316,16 @@ function AdminTeam() {
               <input value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="e.g. Lead Designer" />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Photo URL</label>
-              <input value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} className="glass-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="https://example.com/photo.jpg" />
+              <ImageUploader
+                value={formData.image_url}
+                onChange={url => setFormData({ ...formData, image_url: url })}
+                label="Photo"
+                placeholder="Upload photo or paste URL..."
+              />
             </div>
             <button 
               onClick={handleAdd} 
-              disabled={addMutation.isPending || !formData.name || !formData.role}
+              disabled={addMutation.isPending || !formData.name.trim() || !formData.role.trim()}
               className="glass glass-tint-blue glass-hover glass-glow w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold mt-2 disabled:opacity-50"
             >
               {addMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}

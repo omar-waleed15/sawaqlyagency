@@ -236,3 +236,15 @@
     0 0 0 4px color-mix(in oklab, var(--brand-blue) 18%, transparent);
   background: color-mix(in oklab, black 60%, transparent);
 }
+
+/* Hide website navbar when any social design or media lightbox is open */
+body.modal-open header,
+body.lightbox-open header,
+body.modal-open .nav-shell,
+body.lightbox-open .nav-shell {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-160%) !important;
+  transition: opacity 0.25s ease, transform 0.3s ease !important;
+}
+

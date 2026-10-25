@@ -264,7 +264,17 @@ function Header() {
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    const handleModalOpen = () => { setHidden(true); setOpen(false); };
+    const handleModalClose = () => { setHidden(false); };
+    window.addEventListener('sawaqly:modal-open', handleModalOpen);
+    window.addEventListener('sawaqly:modal-close', handleModalClose);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('sawaqly:modal-open', handleModalOpen);
+      window.removeEventListener('sawaqly:modal-close', handleModalClose);
+    };
   }, []);
 
   return (

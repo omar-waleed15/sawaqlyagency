@@ -69,3 +69,17 @@ ADD COLUMN IF NOT EXISTS portfolio_sub_en TEXT DEFAULT 'Over 12M User On Social 
 ADD COLUMN IF NOT EXISTS portfolio_sub_ar TEXT DEFAULT 'أكثر من 12 مليون شخص يتحدثون عن هذا المحتوى.',
 ADD COLUMN IF NOT EXISTS portfolio_cta_en TEXT DEFAULT 'Explore Now',
 ADD COLUMN IF NOT EXISTS portfolio_cta_ar TEXT DEFAULT 'استكشف الآن';
+
+-- 5. Add Client Case Study, Before/After Meta, and Social Designs columns to video_reels
+ALTER TABLE public.video_reels 
+ADD COLUMN IF NOT EXISTS client_name_en TEXT,
+ADD COLUMN IF NOT EXISTS client_name_ar TEXT,
+ADD COLUMN IF NOT EXISTS growth_desc_en TEXT,
+ADD COLUMN IF NOT EXISTS growth_desc_ar TEXT,
+ADD COLUMN IF NOT EXISTS meta_before_url TEXT,
+ADD COLUMN IF NOT EXISTS meta_after_url TEXT,
+ADD COLUMN IF NOT EXISTS meta_before_tag_en TEXT DEFAULT 'Before Sawaqly',
+ADD COLUMN IF NOT EXISTS meta_before_tag_ar TEXT DEFAULT 'قبل سـواقلي',
+ADD COLUMN IF NOT EXISTS meta_after_tag_en TEXT DEFAULT 'After Sawaqly',
+ADD COLUMN IF NOT EXISTS meta_after_tag_ar TEXT DEFAULT 'بعد سـواقلي',
+ADD COLUMN IF NOT EXISTS social_designs JSONB DEFAULT '[]'::jsonb;
