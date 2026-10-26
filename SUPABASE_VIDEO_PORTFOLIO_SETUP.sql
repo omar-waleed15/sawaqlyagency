@@ -1,7 +1,7 @@
 -- ==============================================================================
 -- SUPABASE VIDEO PORTFOLIO SETUP SCRIPT
 -- Run this in your Supabase Dashboard SQL Editor:
--- https://supabase.com/dashboard/project/folocnkupniuqrzbfqpr/sql/new
+-- https://supabase.com/dashboard/project/omysootvprkkyhhdiicc/sql/new
 -- ==============================================================================
 
 -- 1. Ensure the 'video-portfolio' storage bucket exists and is public
