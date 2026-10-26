@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
+  "name": "sawaqlyagency",
   "account_id": "35be4ae9b4f22f292cad1dab5b715795",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
