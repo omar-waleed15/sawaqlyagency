@@ -43,7 +43,7 @@ export const Route = createFileRoute('/admin/video-portfolio')({
 });
 
 const SQL_SETUP_SNIPPET = `-- Run this in Supabase Dashboard SQL Editor:
--- https://supabase.com/dashboard/project/omysootvprkkyhhdiicc/sql/new
+-- https://supabase.com/dashboard/project/folocnkupniuqrzbfqpr/sql/new
 
 -- 1. Ensure 'video-portfolio' storage bucket exists & is public
 INSERT INTO storage.buckets (id, name, public)
@@ -1103,7 +1103,7 @@ function AdminVideoPortfolio() {
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <a
-                href="https://supabase.com/dashboard/project/omysootvprkkyhhdiicc/sql/new"
+                href="https://supabase.com/dashboard/project/folocnkupniuqrzbfqpr/sql/new"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs text-brand-blue hover:underline"

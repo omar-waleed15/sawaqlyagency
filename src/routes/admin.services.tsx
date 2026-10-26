@@ -114,12 +114,10 @@ function AdminServices() {
     mutationFn: async (newService: typeof formData) => {
       const payload = {
         title: newService.title,
-        title_en: newService.title,
         title_ar: newService.title_ar || null,
         description: newService.description,
-        description_en: newService.description,
         description_ar: newService.description_ar || null,
-        icon: newService.icon_name || newService.icon || 'HelpCircle',
+        icon_name: newService.icon_name || newService.icon || 'HelpCircle',
         sort_order: services.length
       };
       const { error } = await supabase.from('services').insert([payload]);
@@ -138,12 +136,10 @@ function AdminServices() {
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
       const payload = {
         title: data.title,
-        title_en: data.title,
         title_ar: data.title_ar || null,
         description: data.description,
-        description_en: data.description,
         description_ar: data.description_ar || null,
-        icon: data.icon_name || data.icon || 'HelpCircle'
+        icon_name: data.icon_name || data.icon || 'HelpCircle'
       };
       const { error } = await supabase.from('services').update(payload).eq('id', id);
       if (error) throw error;

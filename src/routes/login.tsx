@@ -74,7 +74,7 @@ function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
-                placeholder="admin@sawaqly.com"
+                placeholder="sawaqlydotcomm@gmail.com"
               />
             </div>
           </div>
