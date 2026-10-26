@@ -104,17 +104,35 @@ function AdminProjects() {
     : allProjects;
 
   // ── Project Mutations ──
+  const sanitizeProject = (d: typeof projForm) => ({
+    title_en: d.title_en,
+    title_ar: d.title_ar || null,
+    description_en: d.description_en || null,
+    description_ar: d.description_ar || null,
+    image_url: d.image_url || null,
+    service_id: d.service_id || null,
+    content_blocks: d.content_blocks || [],
+  });
+
   const addProjMutation = useMutation({
     mutationFn: async (d: typeof projForm) => {
-      const { error } = await supabase.from('projects').insert([{ ...d, sort_order: filteredProjects.length }]);
+      const payload = { ...sanitizeProject(d), sort_order: filteredProjects.length };
+      const { error } = await supabase.from('projects').insert([payload]);
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['projects'] }); setProjForm({ ...emptyProject, service_id: projForm.service_id }); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setProjForm({ ...emptyProject, service_id: projForm.service_id });
+    },
+    onError: (err: any) => {
+      alert("Failed to create project: " + err.message);
+    }
   });
 
   const updateProjMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof projForm }) => {
-      const { error } = await supabase.from('projects').update(data).eq('id', id);
+      const payload = sanitizeProject(data);
+      const { error } = await supabase.from('projects').update(payload).eq('id', id);
       if (error) throw error;
     },
     onSuccess: (_, variables) => {
@@ -123,6 +141,9 @@ function AdminProjects() {
       setProjForm({ ...emptyProject, service_id: projForm.service_id });
       setEditingProjId(null);
     },
+    onError: (err: any) => {
+      alert("Failed to update project: " + err.message);
+    }
   });
 
   const deleteProjMutation = useMutation({

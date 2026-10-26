@@ -4,8 +4,9 @@ import { LayoutDashboard, Users, Briefcase, Tag, LogOut, Mail, Settings, FileTex
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      await supabase.auth.signOut();
       throw redirect({ to: '/login' });
     }
   },

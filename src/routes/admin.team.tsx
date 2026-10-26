@@ -166,7 +166,6 @@ function AdminTeam() {
         name: newMember.name.trim(),
         role: newMember.role.trim(),
         image_url: url,
-        photo_url: url,
         sort_order: team.length
       }]);
       if (error) throw error;
@@ -218,7 +217,6 @@ function AdminTeam() {
         name: data.name.trim(),
         role: data.role.trim(),
         image_url: url,
-        photo_url: url,
       }).eq('id', id);
       if (error) throw error;
     },

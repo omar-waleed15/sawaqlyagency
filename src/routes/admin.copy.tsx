@@ -61,13 +61,17 @@ function AdminCopy() {
     }
   }, [copy]);
 
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase.from('website_copy').update(data).eq('id', 1);
+      const { error } = await supabase.from('website_copy').upsert({ id: 1, ...data });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['website_copy'] });
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
     },
     onError: (err: any) => {
       alert("Failed to save: " + err.message);
@@ -100,10 +104,20 @@ function AdminCopy() {
     <button
       onClick={handleSave}
       disabled={saveMutation.isPending}
-      className="glass glass-tint-blue glass-hover glass-glow w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold mt-4 disabled:opacity-50"
+      className={`w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold mt-4 transition-all ${
+        savedSuccess
+          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
+          : 'glass glass-tint-blue glass-hover glass-glow'
+      } disabled:opacity-50`}
     >
-      {saveMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-      Save Copy
+      {saveMutation.isPending ? (
+        <Loader2 size={16} className="animate-spin" />
+      ) : savedSuccess ? (
+        <Check size={16} className="text-white" />
+      ) : (
+        <Check size={16} />
+      )}
+      {savedSuccess ? 'Saved Successfully!' : 'Save Copy'}
     </button>
   );
 
